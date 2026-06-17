@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>梁強度計算WEB v9 コの字2対応</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>梁強度計算WEB</h1>
+      <p>Excel v9「コの字2追加版」をブラウザ用に移植｜mm・N・N/mm² 系</p>
+    </div>
+    <div class="actions">
+      <button id="printBtn" type="button">印刷 / PDF</button>
+      <button id="csvBtn" type="button">CSV保存</button>
+      <button id="jsonBtn" type="button">入力JSON保存</button>
+      <button id="layoutBtn" type="button" class="secondary">上下表示</button>
+      <button id="resetBtn" type="button" class="secondary">初期値に戻す</button>
+    </div>
+  </header>
+
+  <main class="page layout-left-right">
+    <section class="card basic-card span-2">
+      <div class="section-title">
+        <h2>1. 基本入力</h2>
+        <div id="shapeCheckBadge" class="badge">-</div>
+      </div>
+
+      <div class="input-grid">
+        <label>
+          形鋼プリセット
+          <select id="shapePreset"></select>
+        </label>
+        <label>
+          材料
+          <select id="material"></select>
+        </label>
+        <label>
+          支持・荷重ケース
+          <select id="loadCase"></select>
+        </label>
+        <label>
+          断面形状
+          <select id="sectionType">
+            <option>丸棒</option>
+            <option>長方形</option>
+            <option>L字</option>
+            <option>コの字</option>
+            <option>コの字2</option>
+            <option>I形鋼</option>
+            <option>H形鋼</option>
+          </select>
+        </label>
+        <label>
+          断面方向
+          <select id="axis">
+            <option>X方向</option>
+            <option>Y方向</option>
+          </select>
+        </label>
+        <label>
+          許容たわみ L/n
+          <input id="deflectionRatio" type="number" min="1" step="1">
+        </label>
+      </div>
+
+      <p class="note">
+        形鋼プリセットを選ぶと、材料・断面形状・寸法は形鋼DBから自動反映します。
+        手入力の場合は、断面形状と寸法から断面積・I・Zを計算します。
+      </p>
+    </section>
+
+    <section class="card load-card">
+      <h2>2. 荷重</h2>
+      <div class="input-grid one">
+        <label>
+          梁長さ L [mm]
+          <input id="spanL" type="number" min="0" step="0.001">
+        </label>
+        <label>
+          集中荷重 P [N]
+          <input id="pointLoadP" type="number" min="0" step="0.001">
+        </label>
+        <label>
+          等分布荷重 w [N/mm]
+          <input id="uniformLoadW" type="number" min="0" step="0.000001">
+        </label>
+        <label>
+          重力加速度 [m/s²]
+          <input id="gravity" type="number" min="0" step="0.00001">
+        </label>
+      </div>
+      <p class="note">
+        Excel同様、集中荷重ケースでは P を使用し、等分布荷重ケースでは w を使用します。
+        自重は常に等分布荷重としてモーメント・たわみに加算します。
+      </p>
+    </section>
+
+    <section class="card dimensions-card">
+      <h2>3. 断面寸法</h2>
+      <div class="input-grid one">
+        <label>
+          外径 D（丸棒）[mm]
+          <input id="diameterD" type="number" min="0" step="0.001">
+        </label>
+        <label>
+          外形幅 B [mm]
+          <input id="B" type="number" min="0" step="0.001">
+        </label>
+        <label>
+          外形高さ H [mm]
+          <input id="H" type="number" min="0" step="0.001">
+        </label>
+        <label>
+          t1（横板厚）[mm]
+          <input id="t1" type="number" min="0" step="0.001">
+        </label>
+        <label>
+          t2（縦板厚）[mm]
+          <input id="t2" type="number" min="0" step="0.001">
+        </label>
+      </div>
+    </section>
+
+    <section class="card visual-card">
+      <h2>4. 断面イメージ</h2>
+      <canvas id="sectionCanvas" width="520" height="320"></canvas>
+      <p id="sectionMemo" class="note"></p>
+    </section>
+
+    <section class="card result-card span-2">
+      <div class="section-title">
+        <h2>5. 計算結果</h2>
+        <div id="overallBadge" class="big-badge">-</div>
+      </div>
+
+      <div class="result-grid">
+        <div><span>ヤング率 E</span><strong id="rE">-</strong><small>N/mm²</small></div>
+        <div><span>密度</span><strong id="rDensity">-</strong><small>kg/m³</small></div>
+        <div><span>降伏/耐力</span><strong id="rYield">-</strong><small>N/mm²</small></div>
+        <div><span>断面積 A</span><strong id="rArea">-</strong><small>mm²</small></div>
+        <div><span>重心位置</span><strong id="rCentroid">-</strong><small>mm</small></div>
+        <div><span>断面二次モーメント I</span><strong id="rI">-</strong><small>mm⁴</small></div>
+        <div><span>断面係数 Z</span><strong id="rZ">-</strong><small>mm³</small></div>
+        <div><span>使用外力</span><strong id="rUsedLoad">-</strong><small id="rUsedLoadUnit"></small></div>
+        <div><span>自重等分布荷重</span><strong id="rSelfW">-</strong><small>N/mm</small></div>
+        <div><span>合計等分布荷重</span><strong id="rTotalW">-</strong><small>N/mm</small></div>
+        <div><span>最大曲げモーメント</span><strong id="rM">-</strong><small>N･mm</small></div>
+        <div><span>最大曲げ応力</span><strong id="rStress">-</strong><small>N/mm²</small></div>
+        <div><span>安全率</span><strong id="rSafety">-</strong><small>降伏/σ</small></div>
+        <div><span>外力たわみ</span><strong id="rDefLoad">-</strong><small>mm</small></div>
+        <div><span>自重たわみ</span><strong id="rDefSelf">-</strong><small>mm</small></div>
+        <div><span>最大たわみ</span><strong id="rDefTotal">-</strong><small>mm</small></div>
+        <div><span>許容たわみ</span><strong id="rDefAllow">-</strong><small>mm</small></div>
+        <div><span>概算質量</span><strong id="rMass">-</strong><small>kg</small></div>
+      </div>
+
+      <div class="sub-judges">
+        <div id="stressJudge" class="sub-judge">応力判定：-</div>
+        <div id="deflectionJudge" class="sub-judge">たわみ判定：-</div>
+      </div>
+    </section>
+
+    <section class="card formula-card span-2">
+      <h2>6. 計算式メモ</h2>
+      <pre id="formulaMemo" class="formula"></pre>
+    </section>
+
+    <section class="card moment-card span-2">
+      <h2>7. 簡易モーメント図</h2>
+      <canvas id="momentCanvas" width="1100" height="300"></canvas>
+    </section>
+
+    <section class="card db-card span-2">
+      <div class="section-title">
+        <h2>8. 形鋼DB</h2>
+        <input id="shapeFilter" class="filter" type="search" placeholder="形鋼名・断面形状で検索">
+      </div>
+      <div class="table-wrap">
+        <table id="shapeTable">
+          <thead>
+            <tr>
+              <th>呼称</th><th>材料</th><th>断面</th><th>B</th><th>H</th><th>t2</th><th>t1</th>
+              <th>A cm²</th><th>kg/m</th><th>Ix cm⁴</th><th>Iy cm⁴</th><th>Zx cm³</th><th>Zy cm³</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card caution caution-card span-2">
+      <h2>注意</h2>
+      <p>
+        本ページはアップロードされたExcelの簡易計算ロジックをブラウザ用に移植したものです。
+        穴あき、溶接、局部座屈、応力集中、疲労、せん断変形、動荷重などは未考慮です。
+        正式運用前に、既存Excel・社内基準・実機条件で照合してください。
+      </p>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
