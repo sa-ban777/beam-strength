@@ -28,7 +28,7 @@
         <div id="shapeCheckBadge" class="badge">-</div>
       </div>
       <div class="input-column">
-        <label>型鋼プリセット<select id="shapePreset"></select></label>
+        <label>型鋼or断面形状<select id="shapePreset"></select></label>
         <label>材料<select id="material"></select></label>
         <label>ヤング率 E [N/mm²]<input id="youngModulus" type="number" min="0" step="1"></label>
         <label>密度 [kg/m³]<input id="densityInput" type="number" min="0" step="0.001"></label>
@@ -62,15 +62,15 @@
         <div><span>断面二次モーメント I</span><strong id="rI">-</strong><small>mm⁴</small></div>
         <div><span>断面係数 Z</span><strong id="rZ">-</strong><small>mm³</small></div>
         <div><span>使用外力</span><strong id="rUsedLoad">-</strong><small id="rUsedLoadUnit"></small></div>
-        <div><span>自重等分布荷重</span><strong id="rSelfW">-</strong><small>N/mm</small></div>
-        <div><span>合計等分布荷重</span><strong id="rTotalW">-</strong><small>N/mm</small></div>
-        <div><span>最大曲げモーメント</span><strong id="rM">-</strong><small>N･mm</small></div>
-        <div><span>最大曲げ応力</span><strong id="rStress">-</strong><small>N/mm²</small></div>
-        <div><span>安全率</span><strong id="rSafety">-</strong><small>降伏/σ</small></div>
-        <div><span>外力たわみ</span><strong id="rDefLoad">-</strong><small>mm</small></div>
-        <div><span>自重たわみ</span><strong id="rDefSelf">-</strong><small>mm</small></div>
-        <div><span>最大たわみ</span><strong id="rDefTotal">-</strong><small>mm</small></div>
-        <div><span>許容たわみ</span><strong id="rDefAllow">-</strong><small>mm</small></div>
+        <div><span>自重等分布荷重 w_self</span><strong id="rSelfW">-</strong><small>N/mm</small></div>
+        <div><span>合計等分布荷重 w_total</span><strong id="rTotalW">-</strong><small>N/mm</small></div>
+        <div><span>最大曲げモーメント Mmax</span><strong id="rM">-</strong><small>N･mm</small></div>
+        <div><span>最大曲げ応力 σ</span><strong id="rStress">-</strong><small>N/mm²</small></div>
+        <div class="result-emphasis"><span>安全率</span><strong id="rSafety">-</strong><small>降伏/σ</small></div>
+        <div><span>外力たわみ δ_load</span><strong id="rDefLoad">-</strong><small>mm</small></div>
+        <div><span>自重たわみ δ_self</span><strong id="rDefSelf">-</strong><small>mm</small></div>
+        <div class="result-emphasis"><span>最大たわみ δ_total</span><strong id="rDefTotal">-</strong><small>mm</small></div>
+        <div><span>許容たわみ δ_allow</span><strong id="rDefAllow">-</strong><small>mm</small></div>
         <div><span>概算質量</span><strong id="rMass">-</strong><small>kg</small></div>
         <div><span>ヤング率 E</span><strong id="rE">-</strong><small>N/mm²</small></div>
         <div><span>密度</span><strong id="rDensity">-</strong><small>kg/m³</small></div>
@@ -101,5 +101,6 @@
 
   <script src="data.js"></script>
   <script src="app.js"></script>
+  <script src="shape-presets.js"></script>
 </body>
 </html>
