@@ -1,0 +1,36 @@
+window.BEAM_XLSM_DATA={
+  sourceFile:'beam_strength_calculation_v9_konoji2_added.xlsm',
+  version:'github_static',
+  materials:[
+    {name:'SS400',E:205000,density:7850,yieldStress:235,note:'一般構造用圧延鋼材'},
+    {name:'SPCC',E:205000,density:7850,yieldStress:208,note:'冷間圧延鋼板の代表値'},
+    {name:'SUS304',E:193000,density:7930,yieldStress:205,note:'ステンレス鋼の代表値'},
+    {name:'A5052',E:70000,density:2680,yieldStress:215,note:'アルミ合金の代表値'}
+  ],
+  loadCases:[
+    {name:'両端支持・中央集中荷重',momentFormula:'P*L/4',deflectionFormula:'P*L^3/(48*E*I)'},
+    {name:'両端支持・等分布荷重',momentFormula:'w*L^2/8',deflectionFormula:'5*w*L^4/(384*E*I)'},
+    {name:'片持ち・先端集中荷重',momentFormula:'P*L',deflectionFormula:'P*L^3/(3*E*I)'},
+    {name:'片持ち・等分布荷重',momentFormula:'w*L^2/2',deflectionFormula:'w*L^4/(8*E*I)'},
+    {name:'両端固定・中央集中荷重',momentFormula:'P*L/8',deflectionFormula:'P*L^3/(192*E*I)'},
+    {name:'両端固定・等分布荷重',momentFormula:'w*L^2/12',deflectionFormula:'w*L^4/(384*E*I)'}
+  ],
+  shapes:[
+    {name:'手入力',material:'SS400',sectionType:'長方形',B:0,H:0,t1:0,t2:0,areaCm2:0,massKgM:0,IxCm4:0,IyCm4:0,ZxCm3:0,ZyCm3:0},
+    {name:'L3x25x25',material:'SS400',sectionType:'L字',B:25,H:25,t1:3,t2:3,areaCm2:1.427,massKgM:1.12,IxCm4:0.797,IyCm4:0.797,ZxCm3:0.448,ZyCm3:0.448},
+    {name:'L3x30x30',material:'SS400',sectionType:'L字',B:30,H:30,t1:3,t2:3,areaCm2:1.727,massKgM:1.36,IxCm4:1.42,IyCm4:1.42,ZxCm3:0.643,ZyCm3:0.643},
+    {name:'L5x40x40',material:'SS400',sectionType:'L字',B:40,H:40,t1:5,t2:5,areaCm2:3.755,massKgM:2.95,IxCm4:5.42,IyCm4:5.42,ZxCm3:1.89,ZyCm3:1.89},
+    {name:'L6x50x50',material:'SS400',sectionType:'L字',B:50,H:50,t1:6,t2:6,areaCm2:5.644,massKgM:4.43,IxCm4:12.6,IyCm4:12.6,ZxCm3:3.55,ZyCm3:3.55},
+    {name:'L6x65x65',material:'SS400',sectionType:'L字',B:65,H:65,t1:6,t2:6,areaCm2:7.527,massKgM:5.91,IxCm4:29.4,IyCm4:29.4,ZxCm3:6.47,ZyCm3:6.47},
+    {name:'L6x75x75',material:'SS400',sectionType:'L字',B:75,H:75,t1:6,t2:6,areaCm2:8.727,massKgM:6.85,IxCm4:46.1,IyCm4:46.1,ZxCm3:8.64,ZyCm3:8.64},
+    {name:'L9x75x75',material:'SS400',sectionType:'L字',B:75,H:75,t1:9,t2:9,areaCm2:12.69,massKgM:9.96,IxCm4:64.4,IyCm4:64.4,ZxCm3:12.0,ZyCm3:12.0},
+    {name:'L10x100x100',material:'SS400',sectionType:'L字',B:100,H:100,t1:10,t2:10,areaCm2:19.2,massKgM:15.1,IxCm4:175,IyCm4:175,ZxCm3:24.5,ZyCm3:24.5},
+    {name:'[75x40x5',material:'SS400',sectionType:'コの字',B:40,H:75,t1:5,t2:5,areaCm2:8.818,massKgM:6.92,IxCm4:75.3,IyCm4:12.2,ZxCm3:20.1,ZyCm3:4.17},
+    {name:'[100x50x5',material:'SS400',sectionType:'コの字',B:50,H:100,t1:5,t2:5,areaCm2:11.92,massKgM:9.36,IxCm4:188,IyCm4:26.0,ZxCm3:37.6,ZyCm3:7.46},
+    {name:'[150x75x6.5',material:'SS400',sectionType:'コの字',B:75,H:150,t1:6.5,t2:10,areaCm2:23.71,massKgM:18.6,IxCm4:861,IyCm4:117,ZxCm3:115,ZyCm3:22.4},
+    {name:'H100x50',material:'SS400',sectionType:'H形鋼',B:50,H:100,t1:5,t2:7,areaCm2:11.85,massKgM:9.3,IxCm4:187,IyCm4:14.8,ZxCm3:37.5,ZyCm3:5.92},
+    {name:'H150x75',material:'SS400',sectionType:'H形鋼',B:75,H:150,t1:5.5,t2:7,areaCm2:17.85,massKgM:14.0,IxCm4:666,IyCm4:49.5,ZxCm3:88.8,ZyCm3:13.2},
+    {name:'FB6x50',material:'SS400',sectionType:'長方形',B:50,H:6,t1:0,t2:0,areaCm2:3.0,massKgM:2.355,IxCm4:0.09,IyCm4:6.25,ZxCm3:0.3,ZyCm3:2.5}
+  ],
+  defaults:{shapePreset:'L6x50x50',material:'SS400',loadCase:'両端支持・中央集中荷重',sectionType:'L字',axis:'X方向',deflectionRatio:300,spanL:1000,pointLoadP:500,uniformLoadW:1,diameterD:'',B:50,H:50,t1:6,t2:6,gravity:9.80665}
+};
