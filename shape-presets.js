@@ -13,7 +13,13 @@
   if (!select || !sectionType) return;
 
   [...select.options].forEach(option => {
-    if (option.value === '手入力' || option.textContent.trim() === '手入力') option.remove();
+    if (option.value === '手入力' || option.textContent.trim() === '手入力') {
+      option.remove();
+      return;
+    }
+    if (!option.textContent.startsWith('型鋼_')) {
+      option.textContent = '型鋼_' + option.textContent;
+    }
   });
 
   const group = document.createElement('optgroup');
@@ -27,9 +33,20 @@
   });
   select.insertBefore(group, select.firstChild);
 
+  function setDimensionValueVisibility(isSteel) {
+    ['diameterD', 'B', 'H', 't1', 't2'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.toggle('dim-value-hidden', isSteel);
+    });
+  }
+
   function applySectionPreset() {
     const preset = sectionPresets.find(p => p.name === select.value);
-    if (!preset) return false;
+    if (!preset) {
+      setDimensionValueVisibility(true);
+      return false;
+    }
 
     sectionType.value = preset.type;
     ['B', 'H', 't1', 't2', 'diameterD'].forEach(id => {
@@ -38,6 +55,7 @@
       el.disabled = false;
       if (Object.prototype.hasOwnProperty.call(preset.values, id)) el.value = preset.values[id];
     });
+    setDimensionValueVisibility(false);
 
     if (typeof render === 'function') render();
     return true;
