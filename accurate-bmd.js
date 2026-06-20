@@ -57,15 +57,14 @@
       arrow(ctx,x,y-42,x,y-8,color);
       ctx.fillStyle=color;ctx.font='12px sans-serif';ctx.fillText('P='+fmt(P,1)+' N',x+8,y-30);
     }
-    const showDist=caseName.includes('等分布')||wSelf>0;
+    const showDist=caseName.includes('等分布')&&wExt>0;
     if(showDist){
       for(let k=0;k<9;k++){
         const x=x0+(x1-x0)*k/8;
         arrow(ctx,x,y-28,x,y-8,color);
       }
       ctx.fillStyle=color;ctx.font='12px sans-serif';
-      const val=caseName.includes('等分布')?wExt+wSelf:wSelf;
-      ctx.fillText('w='+fmt(val,5)+' N/mm',x0+8,y-34);
+      ctx.fillText('w='+fmt(wExt,5)+' N/mm',x0+8,y-34);
     }
   }
   function drawBeamAndSupports(ctx,caseName,x0,x1,y){
