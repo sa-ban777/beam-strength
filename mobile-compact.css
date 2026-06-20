@@ -1,0 +1,46 @@
+@media(max-width:640px){
+  .page{padding:2px!important;gap:2px!important}
+  .card{padding:3px!important;border-radius:5px!important}
+  .card+ .card{margin-top:2px!important}
+  h2{font-size:13px!important;margin-bottom:2px!important;padding-left:5px!important}
+  .section-title{min-height:20px!important;margin-bottom:2px!important;gap:3px!important}
+  .input-column{
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;
+    gap:1px!important;
+  }
+  .input-column label{
+    padding:1px!important;
+    gap:0!important;
+    border-radius:3px!important;
+    min-height:0!important;
+    font-size:clamp(9px,2.3vw,10.5px)!important;
+    line-height:.95!important;
+    letter-spacing:-.02em!important;
+    background:#fff!important;
+  }
+  .input-column input,.input-column select{
+    height:21px!important;
+    min-height:21px!important;
+    padding:0 3px!important;
+    border-radius:3px!important;
+    font-size:clamp(10px,2.7vw,12px)!important;
+    line-height:1!important;
+  }
+  .input-column .thickness-link-label{
+    grid-column:1/-1!important;
+    min-height:20px!important;
+    padding:1px 3px!important;
+    line-height:1!important;
+  }
+  .input-column .thickness-link-label input{height:auto!important;min-height:0!important}
+  .actions button{min-height:24px!important;padding:3px 2px!important;font-size:10.5px!important}
+  .topbar{padding:3px 4px!important}
+  .topbar h1{font-size:14px!important;line-height:1.1!important}
+}
+@media(max-width:390px){
+  .input-column{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .input-column .thickness-link-label{grid-column:1/-1!important}
+}
+@media(min-width:520px) and (max-width:640px){
+  .input-column{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
