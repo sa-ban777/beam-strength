@@ -5,10 +5,11 @@
     const style=document.createElement('style');
     style.id='sectionAxisToggleStyle';
     style.textContent=`
-      .section-axis-toggle{position:absolute;left:8px;top:28px;z-index:7;display:flex;gap:6px;padding:6px;border:1px solid #cbd5e1;border-radius:10px;background:rgba(255,255,255,.94);box-shadow:0 2px 8px rgba(15,23,42,.12)}
-      .section-axis-toggle button{min-width:76px;height:28px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;font-size:12px;font-weight:800;cursor:pointer}
-      .section-axis-toggle button:hover{background:#eff6ff;border-color:#93c5fd}
-      .section-axis-toggle button.active{background:#2563eb;color:#fff;border-color:#2563eb}
+      .section-axis-btn{position:absolute;z-index:7;min-width:82px;height:28px;border:1px solid #cbd5e1;border-radius:8px;background:rgba(255,255,255,.94);color:#334155;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.12)}
+      .section-axis-btn:hover{background:#eff6ff;border-color:#93c5fd}
+      .section-axis-btn.active{background:#2563eb;color:#fff;border-color:#2563eb}
+      .section-axis-x{left:50%;top:28px;transform:translateX(-50%)}
+      .section-axis-y{left:8px;top:50%;transform:translateY(-50%)}
     `;
     document.head.appendChild(style);
   }
@@ -20,14 +21,31 @@
     const pane=canvas.closest('.visual-pane')||canvas.parentElement;
     if(!pane) return null;
     if(getComputedStyle(pane).position==='static') pane.style.position='relative';
-    let box=$('sectionAxisToggle');
-    if(box) return box;
-    box=document.createElement('div');
-    box.id='sectionAxisToggle';
-    box.className='section-axis-toggle';
-    box.innerHTML='<button type="button" data-axis="X方向" title="X方向荷重に切替">↓ X方向</button><button type="button" data-axis="Y方向" title="Y方向荷重に切替">→ Y方向</button>';
-    pane.appendChild(box);
-    box.querySelectorAll('button[data-axis]').forEach(btn=>{
+    let xBtn=$('sectionAxisX');
+    let yBtn=$('sectionAxisY');
+    if(!xBtn){
+      xBtn=document.createElement('button');
+      xBtn.id='sectionAxisX';
+      xBtn.type='button';
+      xBtn.className='section-axis-btn section-axis-x';
+      xBtn.dataset.axis='X方向';
+      xBtn.title='X方向荷重に切替';
+      xBtn.textContent='↓ X方向';
+      pane.appendChild(xBtn);
+    }
+    if(!yBtn){
+      yBtn=document.createElement('button');
+      yBtn.id='sectionAxisY';
+      yBtn.type='button';
+      yBtn.className='section-axis-btn section-axis-y';
+      yBtn.dataset.axis='Y方向';
+      yBtn.title='Y方向荷重に切替';
+      yBtn.textContent='→ Y方向';
+      pane.appendChild(yBtn);
+    }
+    [xBtn,yBtn].forEach(btn=>{
+      if(btn.dataset.axisClickBound==='1') return;
+      btn.dataset.axisClickBound='1';
       btn.addEventListener('click',()=>{
         const sel=$('axis');
         if(!sel) return;
@@ -38,13 +56,13 @@
         if(typeof render==='function') render();
       });
     });
-    return box;
+    return {xBtn,yBtn};
   }
   function syncUI(){
-    const box=ensureUI();
+    const ui=ensureUI();
     const axis=$('axis');
-    if(!box||!axis) return;
-    box.querySelectorAll('button[data-axis]').forEach(btn=>{
+    if(!ui||!axis) return;
+    [ui.xBtn,ui.yBtn].forEach(btn=>{
       btn.classList.toggle('active',btn.dataset.axis===axis.value);
     });
   }
