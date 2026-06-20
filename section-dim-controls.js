@@ -4,7 +4,7 @@
   const steps={diameterD:1,B:1,H:1,t1:0.1,t2:0.1};
   function $(id){return document.getElementById(id)}
   function stepDecimals(step){const s=String(step);return s.includes('.')?s.split('.')[1].length:0}
-  function sectionType(){const el=$('sectionType');return el?el.value:''}
+  function sectionType(){return window.BeamSectionMode&&window.BeamSectionMode.getSectionType()?window.BeamSectionMode.getSectionType():(($('sectionType')||{}).value||'')}
   function visibleIds(){
     const st=sectionType();
     if(st==='丸棒') return ['diameterD'];
@@ -12,8 +12,7 @@
     return ['B','H','t1','t2'];
   }
   function isEditable(){
-    const mode=$('jisShapeMode');
-    if(mode && mode.value==='__steel__') return false;
+    if(window.BeamSectionMode&&window.BeamSectionMode.isSteel()) return false;
     return visibleIds().some(id=>{const el=$(id);return el && !el.disabled});
   }
   function ensureStyle(){
