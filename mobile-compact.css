@@ -1,46 +1,83 @@
-@media(max-width:640px){
+@media(max-width:1024px){
   .page{padding:2px!important;gap:2px!important}
   .card{padding:3px!important;border-radius:5px!important}
   .card+ .card{margin-top:2px!important}
   h2{font-size:13px!important;margin-bottom:2px!important;padding-left:5px!important}
   .section-title{min-height:20px!important;margin-bottom:2px!important;gap:3px!important}
   .input-column{
-    grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;
+    display:flex!important;
+    flex-wrap:wrap!important;
+    align-items:flex-start!important;
+    justify-content:flex-start!important;
+    align-content:flex-start!important;
     gap:1px!important;
+    overflow:visible!important;
   }
   .input-column label{
-    padding:1px!important;
-    gap:0!important;
-    border-radius:3px!important;
+    display:flex!important;
+    flex:0 0 auto!important;
+    width:auto!important;
+    max-width:100%!important;
+    align-items:center!important;
+    gap:1px!important;
     min-height:0!important;
-    font-size:clamp(9px,2.3vw,10.5px)!important;
+    padding:1px!important;
+    border-radius:3px!important;
+    font-size:clamp(8px,2.1vw,10.5px)!important;
     line-height:.95!important;
-    letter-spacing:-.02em!important;
+    letter-spacing:-.04em!important;
+    white-space:nowrap!important;
     background:#fff!important;
+    border:1px solid #e2e8f0!important;
+    color:#475569!important;
   }
   .input-column input,.input-column select{
-    height:21px!important;
-    min-height:21px!important;
-    padding:0 3px!important;
+    flex:0 0 auto!important;
+    width:auto!important;
+    min-width:0!important;
+    height:20px!important;
+    min-height:20px!important;
+    padding:0 2px!important;
     border-radius:3px!important;
-    font-size:clamp(10px,2.7vw,12px)!important;
+    font-size:clamp(10px,2.5vw,12px)!important;
     line-height:1!important;
   }
+  #B,#H,#diameterD,#spanL{width:5.7em!important}
+  #t1,#t2{width:4.3em!important}
+  #pointLoadP{width:5.7em!important}
+  #uniformLoadW{width:5.2em!important}
+  #deflectionRatio{width:4.2em!important}
+  #gravity{width:5.2em!important}
+  #youngModulus{width:6.2em!important}
+  #densityInput{width:5.7em!important}
+  #yieldStressInput{width:5.2em!important}
+  #material{width:5.4em!important}
+  #axis{width:5.6em!important}
+  #loadCase{width:12.5em!important}
+  #jisShapeMode{width:8.5em!important}
+  #jisSteelKind{width:9.5em!important}
+  #jisSteelSize{width:9.5em!important}
   .input-column .thickness-link-label{
-    grid-column:1/-1!important;
+    display:flex!important;
+    flex:0 0 auto!important;
     min-height:20px!important;
     padding:1px 3px!important;
     line-height:1!important;
   }
-  .input-column .thickness-link-label input{height:auto!important;min-height:0!important}
+  .input-column .thickness-link-label input{width:auto!important;height:auto!important;min-height:0!important}
   .actions button{min-height:24px!important;padding:3px 2px!important;font-size:10.5px!important}
   .topbar{padding:3px 4px!important}
   .topbar h1{font-size:14px!important;line-height:1.1!important}
 }
-@media(max-width:390px){
-  .input-column{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  .input-column .thickness-link-label{grid-column:1/-1!important}
+@media(max-width:640px){
+  .visual-card canvas{height:250px!important;max-height:250px!important;flex:0 0 250px!important;border-radius:6px}
+  .moment-card canvas{height:210px!important;max-height:210px!important;flex:0 0 210px!important;border-radius:6px}
+  .formula{font-size:10.5px!important;line-height:1.18!important;min-height:180px!important;padding:6px!important;border-radius:6px!important}
+  .result-grid{grid-template-columns:1fr 1fr!important;gap:2px!important;overflow:visible!important}
+  .result-grid>div{grid-template-columns:1fr!important;gap:1px!important;min-height:45px!important;border-radius:5px!important;padding:3px 4px!important}
+  .result-grid span{font-size:10.5px!important}.result-grid strong{font-size:13px!important}.result-grid small{font-size:10px!important}
+  .section-dim-controls{right:4px!important;top:22px!important;grid-template-columns:auto 56px!important;gap:2px 4px!important;padding:4px!important;max-width:126px!important;border-radius:7px!important;font-size:10px!important}
+  .section-dim-controls input{width:56px!important;height:20px!important;font-size:10.5px!important}
+  .section-axis-btn{min-width:92px!important;height:26px!important;font-size:10.5px!important;border-radius:6px!important}
 }
-@media(min-width:520px) and (max-width:640px){
-  .input-column{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-}
+@media(max-width:390px){.result-grid{grid-template-columns:1fr!important}.visual-card canvas{height:230px!important;max-height:230px!important;flex-basis:230px!important}.moment-card canvas{height:190px!important;max-height:190px!important;flex-basis:190px!important}}
