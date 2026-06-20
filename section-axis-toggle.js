@@ -8,7 +8,7 @@
       .section-axis-btn{position:absolute;z-index:7;min-width:108px;height:30px;border:1px solid #cbd5e1;border-radius:8px;background:rgba(255,255,255,.96);color:#334155;font-size:12px;font-weight:900;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.12)}
       .section-axis-btn:hover{background:#eff6ff;border-color:#93c5fd}
       .section-axis-btn.active{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 2px 8px rgba(37,99,235,.30)}
-      .section-axis-x{left:8px;top:28px;transform:none}
+      .section-axis-x{left:52%;top:8px;transform:translateX(-50%)}
       .section-axis-y{left:8px;top:50%;transform:translateY(-50%)}
     `;
     document.head.appendChild(style);
