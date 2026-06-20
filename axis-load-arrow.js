@@ -19,6 +19,18 @@
     ctx.fill();
     ctx.restore();
   }
+  function label(ctx,text,x,y,color){
+    ctx.save();
+    ctx.font='bold 13px sans-serif';
+    const w=ctx.measureText(text).width;
+    ctx.fillStyle='rgba(255,255,255,0.94)';
+    ctx.fillRect(x-4,y-14,w+8,19);
+    ctx.strokeStyle='rgba(37,99,235,0.22)';
+    ctx.strokeRect(x-4,y-14,w+8,19);
+    ctx.fillStyle=color;
+    ctx.fillText(text,x,y);
+    ctx.restore();
+  }
   function drawAxisLoadArrow(i){
     const c=document.getElementById('sectionCanvas');
     if(!c) return;
@@ -38,16 +50,14 @@
     const cx=x0+drawW/2;
     const cy=y0+drawH/2;
     const color='#2563eb';
-    ctx.font='bold 13px sans-serif';
-    ctx.fillStyle=color;
     if(String(i.axis||'').startsWith('Y')){
-      const sx=Math.max(12,x0-42), ex=Math.max(18,x0-8);
+      const sx=Math.max(8,x0-72), ex=Math.max(16,x0-18);
       arrow(ctx,sx,cy,ex,cy,color);
-      ctx.fillText('Y方向荷重',sx,Math.max(16,cy-12));
+      label(ctx,'Y方向荷重',Math.max(8,sx),Math.max(16,y0-10),color);
     }else{
       const sy=Math.max(12,y0-44), ey=Math.max(18,y0-8);
       arrow(ctx,cx,sy,cx,ey,color);
-      ctx.fillText('X方向荷重',Math.min(W-80,cx+8),Math.max(16,sy+12));
+      label(ctx,'X方向荷重',Math.min(W-92,cx+8),Math.max(16,sy+12),color);
     }
     ctx.restore();
   }
