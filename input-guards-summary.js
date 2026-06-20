@@ -3,8 +3,8 @@
   function $(id){return document.getElementById(id)}
   function n(id){const el=$(id);const v=Number(el&&el.value);return Number.isFinite(v)?v:NaN}
   function txt(id){const el=$(id);return el?String(el.value||''):''}
-  function isSteel(){const mode=$('jisShapeMode');if(mode)return mode.value==='__steel__';const sp=$('shapePreset');return sp&&!String(sp.value||'').startsWith('断面形状_')}
-  function sectionType(){return txt('sectionType')||'長方形'}
+  function isSteel(){return window.BeamSectionMode?window.BeamSectionMode.isSteel():(()=>{const mode=$('jisShapeMode');if(mode)return mode.value==='__steel__';const sp=$('shapePreset');return sp&&!String(sp.value||'').startsWith('断面形状_')})()}
+  function sectionType(){return window.BeamSectionMode&&window.BeamSectionMode.getSectionType()?window.BeamSectionMode.getSectionType():(txt('sectionType')||'長方形')}
   function fmt(v,d=3){return Number.isFinite(v)?Number(v).toLocaleString('ja-JP',{maximumFractionDigits:d}):'-'}
   function ensureStyle(){
     if($('inputGuardsSummaryStyle'))return;
