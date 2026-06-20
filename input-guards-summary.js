@@ -33,8 +33,7 @@
   function labelOf(id){const el=$(id);return el&&el.closest('label')}
   function setDimVisibility(){
     DIM_IDS.forEach(id=>{const l=labelOf(id);if(l)l.classList.add('input-field-hidden')});
-    const loadLabel=labelOf('loadCase');
-    if(loadLabel)loadLabel.classList.add('input-field-hidden');
+    ['loadCase','axis'].forEach(id=>{const l=labelOf(id);if(l)l.classList.add('input-field-hidden')});
     const link=$('thicknessLink');
     const linkLabel=link&&link.closest('label');
     if(linkLabel)linkLabel.classList.add('input-field-hidden');
