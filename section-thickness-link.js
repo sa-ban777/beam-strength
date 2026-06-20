@@ -2,13 +2,8 @@
   const DEFAULT_T=3.2;
   let syncing=false;
   function $(id){return document.getElementById(id)}
-  function isSectionShape(){
-    const mode=$('jisShapeMode');
-    if(mode) return mode.value!=='__steel__';
-    const hidden=$('shapePreset');
-    return !!hidden && String(hidden.value||'').startsWith('断面形状_');
-  }
-  function isSteel(){return !isSectionShape()}
+  function isSectionShape(){return window.BeamSectionMode?window.BeamSectionMode.isManual():true}
+  function isSteel(){return window.BeamSectionMode?window.BeamSectionMode.isSteel():!isSectionShape()}
   function dispatch(el){
     if(!el)return;
     el.dispatchEvent(new Event('input',{bubbles:true}));
