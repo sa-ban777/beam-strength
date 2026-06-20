@@ -32,5 +32,5 @@ window.BEAM_XLSM_DATA={
     {name:'H150x75',material:'SS400',sectionType:'H形鋼',B:75,H:150,t1:5.5,t2:7,areaCm2:17.85,massKgM:14.0,IxCm4:666,IyCm4:49.5,ZxCm3:88.8,ZyCm3:13.2},
     {name:'FB6x50',material:'SS400',sectionType:'長方形',B:50,H:6,t1:0,t2:0,areaCm2:3.0,massKgM:2.355,IxCm4:0.09,IyCm4:6.25,ZxCm3:0.3,ZyCm3:2.5}
   ],
-  defaults:{shapePreset:'L6x50x50',material:'SS400',loadCase:'両端支持・中央集中荷重',sectionType:'L字',axis:'X方向',deflectionRatio:300,spanL:1000,pointLoadP:500,uniformLoadW:1,diameterD:'',B:50,H:50,t1:6,t2:6,gravity:9.80665}
+  defaults:{shapePreset:'L6x50x50',material:'SS400',loadCase:'両端支持・中央集中荷重',sectionType:'L字',axis:'X方向',deflectionRatio:300,spanL:1000,pointLoadP:500,uniformLoadW:0,diameterD:'',B:50,H:50,t1:6,t2:6,gravity:9.80665}
 };
