@@ -1,11 +1,11 @@
 (() => {
   const sectionPresets = [
-    { name: '断面形状_L字', type: 'L字', values: { B: 50, H: 50, t1: 6, t2: 6, diameterD: '' } },
-    { name: '断面形状_コの字', type: 'コの字2', values: { B: 50, H: 50, t1: 6, t2: 6, diameterD: '' } },
-    { name: '断面形状_凹の字', type: 'コの字', values: { B: 50, H: 50, t1: 6, t2: 6, diameterD: '' } },
-    { name: '断面形状_I(H)形', type: 'H形鋼', values: { B: 75, H: 150, t1: 6, t2: 6, diameterD: '' } },
-    { name: '断面形状_円', type: '丸棒', values: { B: '', H: '', t1: '', t2: '', diameterD: 50 } },
-    { name: '断面形状_長方形', type: '長方形', values: { B: 50, H: 50, t1: '', t2: '', diameterD: '' } }
+    { name: '断面形状_L字', type: 'L字', values: { B: 50, H: 50, t1: 3.2, t2: 3.2, diameterD: '' } },
+    { name: '断面形状_コの字', type: 'コの字2', values: { B: 50, H: 50, t1: 3.2, t2: 3.2, diameterD: '' } },
+    { name: '断面形状_凹の字', type: 'コの字', values: { B: 50, H: 50, t1: 3.2, t2: 3.2, diameterD: '' } },
+    { name: '断面形状_I(H)形', type: 'H形鋼', values: { B: 75, H: 150, t1: 3.2, t2: 3.2, diameterD: '' } },
+    { name: '断面形状_円', type: '丸棒', values: { B: '', H: '', t1: 3.2, t2: 3.2, diameterD: 50 } },
+    { name: '断面形状_長方形', type: '長方形', values: { B: 50, H: 50, t1: 3.2, t2: 3.2, diameterD: '' } }
   ];
 
   const select = document.getElementById('shapePreset');
