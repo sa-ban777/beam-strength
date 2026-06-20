@@ -32,17 +32,12 @@
   }
   function labelOf(id){const el=$(id);return el&&el.closest('label')}
   function setDimVisibility(){
-    const steel=isSteel();
-    const st=sectionType();
-    let show=[];
-    if(steel) show=[];
-    else if(st==='丸棒') show=['diameterD'];
-    else if(st==='長方形') show=['B','H'];
-    else show=['B','H','t1','t2'];
-    DIM_IDS.forEach(id=>{const l=labelOf(id);if(l)l.classList.toggle('input-field-hidden',!show.includes(id))});
+    DIM_IDS.forEach(id=>{const l=labelOf(id);if(l)l.classList.add('input-field-hidden')});
+    const loadLabel=labelOf('loadCase');
+    if(loadLabel)loadLabel.classList.add('input-field-hidden');
     const link=$('thicknessLink');
     const linkLabel=link&&link.closest('label');
-    if(linkLabel)linkLabel.classList.toggle('input-field-hidden',steel||!['L字','コの字','コの字2','I形鋼','H形鋼'].includes(st));
+    if(linkLabel)linkLabel.classList.add('input-field-hidden');
   }
   function clearErrors(){['spanL','B','H','diameterD','t1','t2','youngModulus','densityInput','yieldStressInput'].forEach(id=>{const el=$(id);if(el)el.classList.remove('input-error')})}
   function mark(id){const el=$(id);if(el)el.classList.add('input-error')}
@@ -88,7 +83,7 @@
     else if(st==='長方形') dims='B='+fmt(n('B'))+' / H='+fmt(n('H'));
     else dims='B='+fmt(n('B'))+' / H='+fmt(n('H'))+' / t1='+fmt(n('t1'))+' / t2='+fmt(n('t2'));
     const force=load.includes('等分布')?'w='+fmt(n('uniformLoadW'),6)+'N/mm':'P='+fmt(n('pointLoadP'),1)+'N';
-    summary.textContent=shape+'｜'+dims+'｜'+txt('axis')+'｜L='+fmt(n('spanL'),1)+'mm｜'+force+'｜材料='+txt('material');
+    summary.textContent=shape+'｜'+dims+'｜'+txt('axis')+'｜L='+fmt(n('spanL'),1)+'mm｜'+force+'｜材料='+txt('material')+'｜支持='+load;
   }
   function apply(){
     setDimVisibility();
