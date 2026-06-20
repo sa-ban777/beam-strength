@@ -1,4 +1,4 @@
-@media(max-width:1024px){
+@media(max-width:1600px){
   .page{padding:2px!important;gap:2px!important}
   .card{padding:3px!important;border-radius:5px!important}
   .card+ .card{margin-top:2px!important}
@@ -23,7 +23,7 @@
     min-height:0!important;
     padding:1px!important;
     border-radius:3px!important;
-    font-size:clamp(8px,2.1vw,10.5px)!important;
+    font-size:clamp(8px,0.72vw,10.5px)!important;
     line-height:.95!important;
     letter-spacing:-.04em!important;
     white-space:nowrap!important;
@@ -39,7 +39,7 @@
     min-height:20px!important;
     padding:0 2px!important;
     border-radius:3px!important;
-    font-size:clamp(10px,2.5vw,12px)!important;
+    font-size:clamp(10px,0.85vw,12px)!important;
     line-height:1!important;
   }
   #B,#H,#diameterD,#spanL{width:5.7em!important}
@@ -65,6 +65,9 @@
     line-height:1!important;
   }
   .input-column .thickness-link-label input{width:auto!important;height:auto!important;min-height:0!important}
+  .result-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:2px!important;overflow:visible!important}
+  .result-grid>div{grid-template-columns:1fr!important;gap:1px!important;min-height:45px!important;border-radius:5px!important;padding:3px 4px!important}
+  .result-grid span{font-size:10.5px!important}.result-grid strong{font-size:13px!important}.result-grid small{font-size:10px!important}
   .actions button{min-height:24px!important;padding:3px 2px!important;font-size:10.5px!important}
   .topbar{padding:3px 4px!important}
   .topbar h1{font-size:14px!important;line-height:1.1!important}
@@ -73,9 +76,6 @@
   .visual-card canvas{height:250px!important;max-height:250px!important;flex:0 0 250px!important;border-radius:6px}
   .moment-card canvas{height:210px!important;max-height:210px!important;flex:0 0 210px!important;border-radius:6px}
   .formula{font-size:10.5px!important;line-height:1.18!important;min-height:180px!important;padding:6px!important;border-radius:6px!important}
-  .result-grid{grid-template-columns:1fr 1fr!important;gap:2px!important;overflow:visible!important}
-  .result-grid>div{grid-template-columns:1fr!important;gap:1px!important;min-height:45px!important;border-radius:5px!important;padding:3px 4px!important}
-  .result-grid span{font-size:10.5px!important}.result-grid strong{font-size:13px!important}.result-grid small{font-size:10px!important}
   .section-dim-controls{right:4px!important;top:22px!important;grid-template-columns:auto 56px!important;gap:2px 4px!important;padding:4px!important;max-width:126px!important;border-radius:7px!important;font-size:10px!important}
   .section-dim-controls input{width:56px!important;height:20px!important;font-size:10.5px!important}
   .section-axis-btn{min-width:92px!important;height:26px!important;font-size:10.5px!important;border-radius:6px!important}
