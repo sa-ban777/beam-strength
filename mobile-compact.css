@@ -80,4 +80,20 @@
   .section-dim-controls input{width:56px!important;height:20px!important;font-size:10.5px!important}
   .section-axis-btn{min-width:92px!important;height:26px!important;font-size:10.5px!important;border-radius:6px!important}
 }
+@media(max-width:640px){
+  .input-column{gap:3px!important}
+  .input-column label{font-size:11.5px!important;line-height:1.08!important;letter-spacing:-.02em!important;padding:3px!important;border-radius:5px!important;gap:3px!important}
+  .input-column input,.input-column select{height:27px!important;min-height:27px!important;font-size:13px!important;padding:1px 5px!important;border-radius:5px!important}
+  #material{width:6.2em!important}
+  #jisShapeMode{width:9.6em!important}
+  #jisSteelKind,#jisSteelSize{width:10.8em!important}
+  #deflectionRatio{width:4.8em!important}
+  #spanL,#pointLoadP{width:6.4em!important}
+  #uniformLoadW,#gravity{width:6.0em!important}
+  #youngModulus{width:7.0em!important}
+  #densityInput{width:6.6em!important}
+  #yieldStressInput{width:6.0em!important}
+  .actions button{min-height:30px!important;font-size:11.5px!important;padding:5px 3px!important}
+  .condition-summary{font-size:11px!important;line-height:1.18!important;padding:4px 6px!important}
+}
 @media(max-width:390px){.result-grid{grid-template-columns:1fr!important}.visual-card canvas{height:230px!important;max-height:230px!important;flex-basis:230px!important}.moment-card canvas{height:190px!important;max-height:190px!important;flex-basis:190px!important}}
