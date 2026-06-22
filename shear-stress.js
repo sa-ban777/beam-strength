@@ -60,7 +60,11 @@
     if($('shearStressStyle'))return;
     const s=document.createElement('style');
     s.id='shearStressStyle';
-    s.textContent='.shear-ok{outline:2px solid rgba(22,163,74,.25)}.shear-ng{outline:2px solid rgba(220,38,38,.3)}';
+    s.textContent=`
+      .shear-ok{outline:2px solid rgba(22,163,74,.25)}.shear-ng{outline:2px solid rgba(220,38,38,.3)}
+      .result-grid{gap:5px!important}.result-grid>div{padding:6px 9px!important;min-height:44px!important}.result-grid span{line-height:1.05!important}.result-grid strong{line-height:1.05!important}.result-grid small{line-height:1!important}.sub-judges{margin-top:5px!important;gap:5px!important}.sub-judge{padding:5px 8px!important;line-height:1.05!important}
+      @media(max-width:640px){.result-grid{gap:4px!important}.result-grid>div{padding:5px 7px!important;min-height:40px!important}}
+    `;
     document.head.appendChild(s);
   }
   function patchDimLine(){
