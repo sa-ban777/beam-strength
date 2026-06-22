@@ -61,9 +61,15 @@
     const s=document.createElement('style');
     s.id='shearStressStyle';
     s.textContent=`
-      .shear-ok{outline:2px solid rgba(22,163,74,.25)}.shear-ng{outline:2px solid rgba(220,38,38,.3)}
-      .result-grid{gap:5px!important}.result-grid>div{padding:6px 9px!important;min-height:44px!important}.result-grid span{line-height:1.05!important}.result-grid strong{line-height:1.05!important}.result-grid small{line-height:1!important}.sub-judges{margin-top:5px!important;gap:5px!important}.sub-judge{padding:5px 8px!important;line-height:1.05!important}
-      @media(max-width:640px){.result-grid{gap:4px!important}.result-grid>div{padding:5px 7px!important;min-height:40px!important}}
+      .shear-ok{outline:1px solid rgba(22,163,74,.25)}.shear-ng{outline:1px solid rgba(220,38,38,.3)}
+      .result-card .result-grid{gap:3px!important}
+      .result-card .result-grid>div{min-height:28px!important;padding:2px 5px!important;border-radius:4px!important;display:grid!important;grid-template-columns:1fr auto auto!important;align-items:center!important;column-gap:5px!important;row-gap:0!important}
+      .result-card .result-grid span{font-size:10px!important;line-height:1!important;white-space:nowrap!important}
+      .result-card .result-grid strong{font-size:13px!important;line-height:1!important;white-space:nowrap!important;text-align:right!important}
+      .result-card .result-grid small{font-size:9px!important;line-height:1!important;white-space:nowrap!important;text-align:right!important}
+      .result-card .sub-judges{margin-top:3px!important;gap:3px!important}
+      .result-card .sub-judge{padding:3px 6px!important;font-size:10px!important;line-height:1!important;border-radius:4px!important}
+      @media(max-width:640px){.result-card .result-grid{gap:3px!important}.result-card .result-grid>div{min-height:27px!important;padding:2px 4px!important;column-gap:4px!important}.result-card .result-grid span{font-size:9.5px!important}.result-card .result-grid strong{font-size:12px!important}.result-card .result-grid small{font-size:8.5px!important}}
     `;
     document.head.appendChild(s);
   }
