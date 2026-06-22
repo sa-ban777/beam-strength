@@ -42,6 +42,27 @@
       if(strong&&strong.id==='rBendRatioShort')card.remove();
     });
   }
+  function setBadge(el,text,state){
+    if(!el)return;
+    const base=el.classList.contains('big-badge')?'big-badge':(el.classList.contains('sub-judge')?'sub-judge':'badge');
+    el.className=base;
+    el.textContent=text;
+    if(state==='OK')el.classList.add('ok');
+    else if(state==='NG')el.classList.add('ng');
+    else if(state==='△')el.classList.add('warn');
+  }
+  function applySafetyThreshold(){
+    if(typeof calc!=='function')return;
+    let r;try{r=calc()}catch(e){return;}
+    const stressState=r.safety>=3?'OK':(r.safety>=1?'△':'NG');
+    setBadge($('stressJudge'),'応力判定：'+stressState,stressState);
+    const overall=(r.sectionCheck!=='OK'||r.deflectionJudge!=='OK'||stressState==='NG')?'NG':(stressState==='△'?'△':'OK');
+    setBadge($('overallBadge'),overall,overall);
+    const q=$('quickJudge');
+    if(q)q.textContent=overall;
+    const qi=$('quickJudgeItem');
+    if(qi){qi.classList.remove('judge-ok','judge-ng','judge-ref');qi.classList.add(overall==='OK'?'judge-ok':overall==='NG'?'judge-ng':'judge-ref');}
+  }
   function renameAndRemove(){
     ensureStyle();
     const s=labelOf('rSafety');
@@ -59,6 +80,7 @@
       t=t.replace(/曲げ応力 短期 = 降伏 \/ σ/g,'安全率（曲げ応力 短期） = 降伏 / σ');
       memo.textContent=t;
     }
+    applySafetyThreshold();
   }
   function patchRender(){
     if(typeof render!=='function'||render._safetyLabelFixPatched)return;
