@@ -45,8 +45,44 @@
     `;
     document.head.appendChild(s);
   }
+  function fmtLocal(v,d=6){
+    if(!Number.isFinite(v))return '-';
+    return Number(v).toLocaleString('ja-JP',{maximumFractionDigits:d});
+  }
+  function mmaxFormula(r){
+    if(!r||!r.i)return '';
+    const c=r.i.loadCase;
+    const P=r.i.P,L=r.i.L,w=r.i.w,ws=r.selfW,wt=r.totalW;
+    if(c==='両端支持・中央集中荷重')return 'Mmax = P × L / 4 + w_self × L² / 8\n     = '+fmtLocal(P,3)+' × '+fmtLocal(L,3)+' / 4 + '+fmtLocal(ws,9)+' × '+fmtLocal(L,3)+'² / 8\n     = '+fmtLocal(r.M,6)+' N･mm';
+    if(c==='両端支持・等分布荷重')return 'Mmax = (w + w_self) × L² / 8\n     = ('+fmtLocal(w,9)+' + '+fmtLocal(ws,9)+') × '+fmtLocal(L,3)+'² / 8\n     = '+fmtLocal(r.M,6)+' N･mm';
+    if(c==='片持ち・先端集中荷重')return 'Mmax = P × L + w_self × L² / 2\n     = '+fmtLocal(P,3)+' × '+fmtLocal(L,3)+' + '+fmtLocal(ws,9)+' × '+fmtLocal(L,3)+'² / 2\n     = '+fmtLocal(r.M,6)+' N･mm';
+    if(c==='片持ち・等分布荷重')return 'Mmax = (w + w_self) × L² / 2\n     = ('+fmtLocal(w,9)+' + '+fmtLocal(ws,9)+') × '+fmtLocal(L,3)+'² / 2\n     = '+fmtLocal(r.M,6)+' N･mm';
+    if(c==='両端固定・中央集中荷重')return 'Mmax = P × L / 8 + w_self × L² / 12\n     = '+fmtLocal(P,3)+' × '+fmtLocal(L,3)+' / 8 + '+fmtLocal(ws,9)+' × '+fmtLocal(L,3)+'² / 12\n     = '+fmtLocal(r.M,6)+' N･mm';
+    return 'Mmax = (w + w_self) × L² / 12\n     = '+fmtLocal(wt,9)+' × '+fmtLocal(L,3)+'² / 12\n     = '+fmtLocal(r.M,6)+' N･mm';
+  }
+  function updateFormulaMemo(){
+    const memo=$('formulaMemo');
+    if(!memo||typeof calc!=='function')return;
+    const r=calc();
+    const formula=mmaxFormula(r);
+    if(!formula)return;
+    let t=String(memo.textContent||'');
+    t=t.replace(/^Mmax = .*$/m,formula);
+    memo.textContent=t;
+  }
+  function patchRenderForFormula(){
+    if(typeof render!=='function'||render._mmaxFormulaPatched)return;
+    const original=render;
+    window.render=function(){
+      const out=original.apply(this,arguments);
+      updateFormulaMemo();
+      return out;
+    };
+    window.render._mmaxFormulaPatched=true;
+  }
   function fallbackCopy(text){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy')}catch(e){}ta.remove()}
   async function copy(){const text=buildText();try{if(navigator.clipboard&&navigator.clipboard.writeText)await navigator.clipboard.writeText(text);else fallbackCopy(text)}catch(e){fallbackCopy(text)}const btn=$('copyResultBtn');if(btn){const old=btn.textContent;btn.textContent='コピー完了';setTimeout(()=>btn.textContent=old,1200)}}
   function ensureButton(){ensureStyle();if($('copyResultBtn'))return;const actions=document.querySelector('.actions');if(actions){const btn=document.createElement('button');btn.id='copyResultBtn';btn.type='button';btn.textContent='結果コピー';const csv=$('csvBtn');if(csv)csv.insertAdjacentElement('afterend',btn);else actions.appendChild(btn);btn.addEventListener('click',copy)}}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureButton);else ensureButton();
+  function init(){ensureButton();patchRenderForFormula();updateFormulaMemo()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
