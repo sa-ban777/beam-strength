@@ -44,8 +44,8 @@
       set('deflectionRatio',d.n);set('spanL',d.L);set('pointLoadP',d.P);set('uniformLoadW',d.w);set('gravity',d.g);
       const link=$('thicknessLink');
       if(link)link.checked=false;
-      const lipSource=$('lipWidthSource'),lipLink=$('lipWidthLink');
-      if(lipSource)lipSource.value=d.lipWidthSource==='t1'?'t1':'input';
+      const lipSource=$(d.lipWidthSource==='t1'?'lipWidthSourceT1':'lipWidthSourceInput'),lipLink=$('lipWidthLink');
+      if(lipSource)lipSource.checked=true;
       if(lipLink)lipLink.checked=d.lipWidthLink??(d.B1==null||d.B2==null||Number(d.B1)===Number(d.B2));
       set('diameterD',d.D);set('B',d.B);set('H',d.H);set('B1',d.B1);set('B2',d.B2);
       set('t1',d.t1);set('t2',d.t2);set('t3',d.t3);

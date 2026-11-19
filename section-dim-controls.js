@@ -40,10 +40,10 @@
         .section-dim-controls.dim-controls-lipped{grid-template-columns:repeat(3,auto minmax(0,1fr))!important;gap:2px 6px;padding:4px 6px}
         .section-dim-controls.dim-controls-lipped input[data-dim-input]{height:19px}
         .section-dim-controls.dim-controls-lipped .dim-title{margin:0}
-        .section-dim-controls.dim-controls-lipped select{font:inherit;height:20px}
         .section-dim-controls.dim-controls-lipped .lip-width-controls{gap:2px 10px}
       }
       .lip-width-controls{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+      .lip-width-source{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
       .lip-width-controls label{display:flex;align-items:center;gap:5px}
       .lip-width-controls input{width:auto!important;height:auto!important}
       .section-dim-controls.dim-controls-lipped .dim-step-buttons{display:none}
@@ -68,9 +68,15 @@
     const lipControls=document.createElement('div');
     lipControls.id='lipWidthControls';
     lipControls.className='lip-width-controls';
-    lipControls.innerHTML='<label>B1・B2の参照先 <select id="lipWidthSource"><option value="input">入力値</option><option value="t1">t1</option></select></label><label><input type="checkbox" id="lipWidthLink" checked>B1・B2を連動</label>';
+    lipControls.innerHTML=`
+      <div class="lip-width-source" role="radiogroup" aria-labelledby="lipWidthSourceLabel">
+        <span id="lipWidthSourceLabel">B1・B2の参照先</span>
+        <label><input type="radio" name="lipWidthSource" id="lipWidthSourceInput" value="input" checked>入力値</label>
+        <label><input type="radio" name="lipWidthSource" id="lipWidthSourceT1" value="t1">t1</label>
+      </div>
+      <label><input type="checkbox" id="lipWidthLink" checked>B1・B2を連動</label>`;
     panel.querySelector('.dim-title').after(lipControls);
-    $('lipWidthSource').addEventListener('change',()=>render());
+    lipControls.querySelectorAll('input[type="radio"]').forEach(radio=>radio.addEventListener('change',()=>render()));
     $('lipWidthLink').addEventListener('change',()=>{
       if($('lipWidthLink').checked)$('B2').value=$('B1').value;
       render();
@@ -95,7 +101,7 @@
   function applyInput(id,value){
     const target=$(id);
     const lipWidth=id==='B1'||id==='B2';
-    if(!target || target.disabled || (lipWidth&&$('lipWidthSource').value==='t1')) return;
+    if(!target || target.disabled || (lipWidth&&$('lipWidthSourceT1').checked)) return;
     target.value=value;
     if(lipWidth&&$('lipWidthLink').checked){
       $(id==='B1'?'B2':'B1').value=target.value;
@@ -117,7 +123,7 @@
     sectionCanvas.classList.toggle('lipped-section-canvas',lipped);
     supportCanvas.classList.toggle('compact-support-canvas',compactSupport);
     $('lipWidthControls').style.display=lipped?'':'none';
-    const useT1=lipped&&$('lipWidthSource').value==='t1';
+    const useT1=lipped&&$('lipWidthSourceT1').checked;
     const show=new Set(visibleIds());
     const editable=isEditable();
     ids.forEach(id=>{
@@ -151,7 +157,7 @@
   function init(){
     ensurePanel();
     $('resetBtn')?.addEventListener('click',()=>{
-      $('lipWidthSource').value='input';
+      $('lipWidthSourceInput').checked=true;
       $('lipWidthLink').checked=true;
       render();
     });

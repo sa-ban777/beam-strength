@@ -31,7 +31,7 @@ function inputs(){
 }
 function lipWidths(){
  const B1Input=num($('B1').value),B2Input=num($('B2').value);
- const lipWidthSource=$('lipWidthSource')?.value||'input';
+ const lipWidthSource=$('lipWidthSourceT1')?.checked?'t1':'input';
  const lipWidthLink=$('lipWidthLink')?.checked??true;
  const useT1=$('sectionType').value===LIPPED_CHANNEL&&lipWidthSource==='t1';
  const t1=num($('t1').value);

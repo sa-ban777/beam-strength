@@ -19,7 +19,7 @@ function ss400FixCanvasSize(c){const r=window.devicePixelRatio||1,w=Math.max(1,M
 function ss400FixFmt(v,d=3){if(!Number.isFinite(v))return'-';return v.toLocaleString('ja-JP',{maximumFractionDigits:d})}
 function ss400FixDim(ctx,x1,y1,x2,y2,t,v=false){ctx.save();ctx.strokeStyle=ctx.fillStyle='#2563eb';ctx.lineWidth=1.3;ctx.font='11px sans-serif';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();if(v){ctx.beginPath();ctx.moveTo(x1-4,y1);ctx.lineTo(x1+4,y1);ctx.moveTo(x2-4,y2);ctx.lineTo(x2+4,y2);ctx.stroke();ctx.save();ctx.translate(x1+12,(y1+y2)/2);ctx.rotate(-Math.PI/2);ctx.fillText(t,-ctx.measureText(t).width/2,0);ctx.restore()}else{ctx.beginPath();ctx.moveTo(x1,y1-4);ctx.lineTo(x1,y1+4);ctx.moveTo(x2,y2-4);ctx.lineTo(x2,y2+4);ctx.stroke();ctx.fillText(t,(x1+x2)/2-ctx.measureText(t).width/2,y1-5)}ctx.restore()}
 function lippedChannelLayout(i,w,h){
- const margin=Math.min(78,w*0.27);
+ const margin=Math.min(86,w*0.27);
  const scale=Math.max(0,Math.min((w-2*margin)/i.B,(h-76)/i.H));
  const B=i.B*scale,H=i.H*scale;
  return {scale,B,H,x:(w-B)/2,y:(h-28+H)/2};
@@ -76,22 +76,27 @@ function drawLippedChannel(i,sec){
  lipLabel('B1='+f(i.B1),x+i.B1*scale/2,y+15);
  lipLabel('B2='+f(i.B2),right-i.B2*scale/2,y+31);
 
- // Separate callout rows remain legible even when the walls are only a few pixels thick.
- const labelX=right+15;
- const labelY=(top+y)/2;
- for(const [name,value,px,py,offset] of [
-  ['t1',i.t1,right,top+i.t1*scale/2,-18],
-  ['t2',i.t2,right,labelY,0],
-  ['t3',i.t3,right,y-i.t3*scale/2,18]
- ]){
-  const ty=labelY+offset;
+ const dimensionX=right+15;
+ const thicknessDimension=(start,end,text,textY)=>{
   ctx.beginPath();
-  ctx.moveTo(px,py);
-  ctx.lineTo(right+7,ty);
-  ctx.lineTo(labelX-3,ty);
+  ctx.moveTo(right+2,start);
+  ctx.lineTo(dimensionX+4,start);
+  ctx.moveTo(right+2,end);
+  ctx.lineTo(dimensionX+4,end);
+  ctx.moveTo(dimensionX,start-3);
+  ctx.lineTo(dimensionX,end+3);
   ctx.stroke();
-  ctx.fillText(name+'='+f(value),labelX,ty+4);
- }
+  ctx.fillText(text,dimensionX+7,textY);
+ };
+ thicknessDimension(top,top+i.t1*scale,'t1='+f(i.t1),top-3);
+ thicknessDimension(y-i.t3*scale,y,'t3='+f(i.t3),y+12);
+
+ const middle=(top+y)/2;
+ ctx.beginPath();
+ ctx.moveTo(right,middle);
+ ctx.lineTo(dimensionX+4,middle);
+ ctx.stroke();
+ ctx.fillText('t2='+f(i.t2),dimensionX+7,middle+4);
 }
 function drawSection(i,sec){if(i.sectionType===LIPPED_CHANNEL){drawLippedChannel(i,sec);return}const c=document.getElementById('sectionCanvas');if(!c)return;const s=ss400FixCanvasSize(c),ctx=s.ctx,W=s.w,Hc=s.h;ctx.clearRect(0,0,W,Hc);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,Hc);const dw=Math.max(i.B||i.D||1,1),dh=Math.max(i.H||i.D||1,1),sc=Math.min((W-90)/dw,(Hc-64)/dh)*.86,x0=(W-dw*sc)/2,y0=(Hc-dh*sc)/2,B=i.B*sc,H=i.H*sc,t1=i.t1*sc,t2=i.t2*sc,D=i.D*sc;ctx.strokeStyle='#0f172a';ctx.lineWidth=2;ctx.fillStyle='#dbeafe';function R(x,y,w,h){ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h)}if(i.sectionType==='丸棒'){ctx.beginPath();ctx.arc(W/2,Hc/2,D/2,0,7);ctx.fill();ctx.stroke()}else if(i.sectionType==='L字'){R(x0,y0,t2,H);R(x0,y0+H-t1,B,t1)}else if(i.sectionType==='コの字'){R(x0,y0,B,t1);R(x0,y0+t1,t2,H-t1);R(x0+B-t2,y0+t1,t2,H-t1)}else if(i.sectionType==='コの字2'){R(x0,y0,t2,H);R(x0+t2,y0,B-t2,t1);R(x0+t2,y0+H-t1,B-t2,t1)}else if(i.sectionType==='長方形'){R(x0,y0,B,H)}else{R(x0,y0,B,t1);R(x0+(B-t2)/2,y0+t1,t2,H-2*t1);R(x0,y0+H-t1,B,t1)}ctx.save();ctx.setLineDash([6,5]);ctx.strokeStyle='#c62828';ctx.beginPath();const ref=i.sectionType==='丸棒'?i.D:i.H,cy=y0+(ref-sec.c)*sc;ctx.moveTo(16,cy);ctx.lineTo(W-16,cy);ctx.stroke();ctx.restore();ctx.font='11px sans-serif';if(i.sectionType==='丸棒'){ss400FixDim(ctx,W/2-D/2,Hc-20,W/2+D/2,Hc-20,'D='+ss400FixFmt(i.D,3)+' mm')}else{ss400FixDim(ctx,x0,Hc-20,x0+B,Hc-20,'B='+ss400FixFmt(i.B,3)+' mm');ss400FixDim(ctx,x0-18,y0,x0-18,y0+H,'H='+ss400FixFmt(i.H,3)+' mm',true);if(['L字','コの字','コの字2','I形鋼','H形鋼'].includes(i.sectionType)){const t2x1=i.sectionType==='I形鋼'||i.sectionType==='H形鋼'?x0+(B-t2)/2:x0;const t2x2=i.sectionType==='I形鋼'||i.sectionType==='H形鋼'?x0+(B+t2)/2:x0+t2;const t1y1=i.sectionType==='L字'?y0+H-t1:y0;const t1y2=i.sectionType==='L字'?y0+H:y0+t1;ss400FixDim(ctx,t2x1,y0-8,t2x2,y0-8,'t2='+ss400FixFmt(i.t2,3));ss400FixDim(ctx,x0+B+14,t1y1,x0+B+14,t1y2,'t1='+ss400FixFmt(i.t1,3),true)}}ctx.fillStyle='#334155';ctx.font='11px sans-serif';ctx.fillText('断面形状：'+i.sectionType,12,Hc-5)}
 ['material','shapePreset','sectionType','diameterD','B','H','t1','t2','spanL','pointLoadP','uniformLoadW','youngModulus','densityInput','yieldStressInput','loadCase','axis'].forEach(id=>{const el=document.getElementById(id);if(!el)return;['input','change'].forEach(ev=>el.addEventListener(ev,()=>{ss400FixSetSpinSteps();ss400FixEnableWheel();ss400FixAutoYield();if(typeof render==='function')render()}))});
