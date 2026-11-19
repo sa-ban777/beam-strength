@@ -5,11 +5,11 @@
     const style=document.createElement('style');
     style.id='sectionAxisToggleStyle';
     style.textContent=`
-      .section-axis-btn{position:absolute;z-index:7;min-width:108px;height:30px;border:1px solid #cbd5e1;border-radius:8px;background:rgba(255,255,255,.96);color:#334155;font-size:12px;font-weight:900;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.12)}
+      .section-axis-controls{display:flex;justify-content:center;gap:6px;margin-bottom:5px}
+      .section-axis-btn{min-width:108px;height:30px;border:1px solid #cbd5e1;border-radius:8px;background:rgba(255,255,255,.96);color:#334155;font-size:12px;font-weight:900;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.12)}
       .section-axis-btn:hover{background:#eff6ff;border-color:#93c5fd}
       .section-axis-btn.active{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 2px 8px rgba(37,99,235,.30)}
-      .section-axis-x{left:52%;top:8px;transform:translateX(-50%)}
-      .section-axis-y{left:8px;top:50%;transform:translateY(-50%)}
+      @media print{.section-axis-controls{display:none}}
     `;
     document.head.appendChild(style);
   }
@@ -21,6 +21,13 @@
     const pane=canvas.closest('.visual-pane')||canvas.parentElement;
     if(!pane) return null;
     if(getComputedStyle(pane).position==='static') pane.style.position='relative';
+    let controls=$('sectionAxisControls');
+    if(!controls){
+      controls=document.createElement('div');
+      controls.id='sectionAxisControls';
+      controls.className='section-axis-controls';
+      canvas.before(controls);
+    }
     let xBtn=$('sectionAxisX');
     let yBtn=$('sectionAxisY');
     if(!xBtn){
@@ -30,7 +37,7 @@
       xBtn.className='section-axis-btn section-axis-x';
       xBtn.dataset.axis='X方向';
       xBtn.title='X方向荷重に切替';
-      pane.appendChild(xBtn);
+      controls.appendChild(xBtn);
     }
     if(!yBtn){
       yBtn=document.createElement('button');
@@ -39,7 +46,7 @@
       yBtn.className='section-axis-btn section-axis-y';
       yBtn.dataset.axis='Y方向';
       yBtn.title='Y方向荷重に切替';
-      pane.appendChild(yBtn);
+      controls.appendChild(yBtn);
     }
     xBtn.textContent='↓ X方向荷重';
     yBtn.textContent='→ Y方向荷重';

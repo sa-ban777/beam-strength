@@ -70,7 +70,7 @@
         if(Number.isFinite(t1)&&Number.isFinite(H)&&t1>H)add(errors,'t1 が H より大きくなっています','t1','H');
         if(Number.isFinite(t2)&&Number.isFinite(B)&&t2>B)add(errors,'t2 が B より大きくなっています','t2','B');
         if(st===LIPPED_CHANNEL){
-          const B1=n('B1'),B2=n('B2'),t3=n('t3');
+          const {B1,B2}=lipWidths(),t3=n('t3');
           if(!(t3>0))add(errors,'t3 は 0 より大きくしてください','t3');
           if(!(t1+t3<H))add(errors,'t1＋t3 は H 未満にしてください','t1','t3','H');
           if(!(B1>=t2))add(errors,'B1 は t2 以上にしてください','B1','t2');
@@ -96,7 +96,10 @@
     else if(st==='丸棒') dims='D='+fmt(n('diameterD'));
     else if(st==='長方形') dims='B='+fmt(n('B'))+' / H='+fmt(n('H'));
     else dims='B='+fmt(n('B'))+' / H='+fmt(n('H'))+' / t1='+fmt(n('t1'))+' / t2='+fmt(n('t2'));
-    if(st===LIPPED_CHANNEL) dims+=' / '+['B1','B2','t3'].map(id=>id+'='+fmt(n(id))).join(' / ');
+    if(st===LIPPED_CHANNEL){
+      const {B1,B2}=lipWidths();
+      dims+=' / B1='+fmt(B1)+' / B2='+fmt(B2)+' / t3='+fmt(n('t3'));
+    }
     const force=load.includes('等分布')?'w='+fmt(n('uniformLoadW'),6)+'N/mm':'P='+fmt(n('pointLoadP'),1)+'N';
     summary.textContent=shape+'｜'+dims+'｜'+txt('axis')+'｜L='+fmt(n('spanL'),1)+'mm｜'+force+'｜材料='+txt('material')+'｜支持='+load;
   }

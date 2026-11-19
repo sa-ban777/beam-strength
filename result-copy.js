@@ -8,7 +8,10 @@
     const st=val('sectionType');
     if(st==='丸棒')return '断面形状 '+st+' D='+val('diameterD')+'mm';
     if(st==='長方形')return '断面形状 '+st+' B='+val('B')+'mm H='+val('H')+'mm';
-    if(st===LIPPED_CHANNEL) return '断面形状 '+st+' '+['B','H','B1','B2','t1','t2','t3'].map(id=>id+'='+val(id)+'mm').join(' ');
+    if(st===LIPPED_CHANNEL){
+      const dims=inputs();
+      return '断面形状 '+st+' '+['B','H','B1','B2','t1','t2','t3'].map(id=>id+'='+dims[id]+'mm').join(' ');
+    }
     return '断面形状 '+st+' B='+val('B')+'mm H='+val('H')+'mm t1='+val('t1')+'mm t2='+val('t2')+'mm';
   }
   function buildText(){

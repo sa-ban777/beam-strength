@@ -30,7 +30,15 @@
     ctx.setTransform(ratio,0,0,ratio,0,0);
     const dw=Math.max(i.B||i.D||1,1);
     const dh=Math.max(i.H||i.D||1,1);
-    const scale=Math.max(0,Math.min((W-90)/dw,(Hc-(i.sectionType===LIPPED_CHANNEL?68:64))/dh)*0.86);
+    if(i.sectionType===LIPPED_CHANNEL){
+      const {x,y,B,H}=lippedChannelLayout(i,W,Hc);
+      // t1–t3 use the right margin and H uses the left margin.
+      if(isY(i.axis)) arrow(ctx,8,y-H/2,Math.max(18,x-38),y-H/2,'#2563eb');
+      else arrow(ctx,x+B/2,5,x+B/2,Math.max(15,y-H-5),'#2563eb');
+      ctx.restore();
+      return;
+    }
+    const scale=Math.max(0,Math.min((W-90)/dw,(Hc-64)/dh)*0.86);
     const drawW=dw*scale;
     const drawH=dh*scale;
     const x0=(W-drawW)/2;

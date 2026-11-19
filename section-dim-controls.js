@@ -21,7 +21,7 @@
     const style=document.createElement('style');
     style.id='sectionDimControlStyle';
     style.textContent=`
-      .section-dim-controls{position:absolute;right:8px;top:28px;z-index:5;background:rgba(255,255,255,.92);border:1px solid #cbd5e1;border-radius:10px;padding:6px;box-shadow:0 2px 8px rgba(15,23,42,.12);display:grid;grid-template-columns:auto 70px;gap:4px 6px;align-items:center;font-size:11px;color:#334155;max-width:150px}
+      .section-dim-controls{position:absolute;right:8px;top:64px;z-index:5;background:rgba(255,255,255,.92);border:1px solid #cbd5e1;border-radius:10px;padding:6px;box-shadow:0 2px 8px rgba(15,23,42,.12);display:grid;grid-template-columns:auto 70px;gap:4px 6px;align-items:center;font-size:11px;color:#334155;max-width:150px}
       .section-dim-controls .dim-title{grid-column:1/3;font-weight:800;color:#1f2937;margin-bottom:2px}
       .section-dim-controls label{font-weight:800;color:#475569}
       .section-dim-controls input{width:70px;height:22px;border:1px solid #cbd5e1;border-radius:6px;padding:1px 4px;font-size:11px;background:#fff;color:#111827}
@@ -31,6 +31,10 @@
       .section-dim-controls.dim-controls-lipped{position:static;max-width:none!important;grid-template-columns:repeat(2,minmax(0,1fr) minmax(0,2fr))!important;margin-top:4px}
       .section-dim-controls.dim-controls-lipped input[data-dim-input]{width:100%!important}
       .section-dim-controls.dim-controls-lipped .dim-title,.section-dim-controls.dim-controls-lipped .dim-note{grid-column:1/-1}
+      #sectionCanvas.lipped-section-canvas{min-height:166px}
+      .lip-width-controls{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+      .lip-width-controls label{display:flex;align-items:center;gap:5px}
+      .lip-width-controls input{width:auto!important;height:auto!important}
       .section-dim-controls.dim-controls-lipped .dim-step-buttons{display:none}
       .section-dim-controls .dim-note{grid-column:1/3;font-size:10px;color:#64748b;line-height:1.2}
     `;
@@ -50,6 +54,16 @@
     panel.className='section-dim-controls';
     panel.innerHTML='<div class="dim-title">寸法調整</div>'+ids.map(id=>`<label data-dim-label="${id}" for="dimCtrl_${id}">${labels[id]}</label><input data-dim-input="${id}" id="dimCtrl_${id}" type="number">`).join('')+'<div class="dim-note" id="dimCtrlNote"></div>';
     pane.appendChild(panel);
+    const lipControls=document.createElement('div');
+    lipControls.id='lipWidthControls';
+    lipControls.className='lip-width-controls';
+    lipControls.innerHTML='<label>B1・B2の参照先 <select id="lipWidthSource"><option value="input">入力値</option><option value="t1">t1</option></select></label><label><input type="checkbox" id="lipWidthLink" checked>B1・B2を連動</label>';
+    $('dimCtrlNote').before(lipControls);
+    $('lipWidthSource').addEventListener('change',()=>render());
+    $('lipWidthLink').addEventListener('change',()=>{
+      if($('lipWidthLink').checked)$('B2').value=$('B1').value;
+      render();
+    });
     panel.querySelectorAll('input[data-dim-input]').forEach(input=>{
       const id=input.dataset.dimInput;
       input.step=String(steps[id]||1);
@@ -69,8 +83,12 @@
   }
   function applyInput(id,value){
     const target=$(id);
-    if(!target || target.disabled) return;
+    const lipWidth=id==='B1'||id==='B2';
+    if(!target || target.disabled || (lipWidth&&$('lipWidthSource').value==='t1')) return;
     target.value=value;
+    if(lipWidth&&$('lipWidthLink').checked){
+      $(id==='B1'?'B2':'B1').value=target.value;
+    }
     target.dispatchEvent(new Event('input',{bubbles:true}));
     target.dispatchEvent(new Event('change',{bubbles:true}));
     if(typeof ss400FixAutoYield==='function') ss400FixAutoYield();
@@ -79,7 +97,11 @@
   function syncPanel(){
     const panel=ensurePanel();
     if(!panel) return;
-    panel.classList.toggle('dim-controls-lipped',sectionType()===LIPPED_CHANNEL);
+    const lipped=sectionType()===LIPPED_CHANNEL;
+    panel.classList.toggle('dim-controls-lipped',lipped);
+    $('sectionCanvas').classList.toggle('lipped-section-canvas',lipped);
+    $('lipWidthControls').style.display=lipped?'':'none';
+    const useT1=lipped&&$('lipWidthSource').value==='t1';
     const show=new Set(visibleIds());
     const editable=isEditable();
     ids.forEach(id=>{
@@ -91,8 +113,10 @@
         input.style.display=rowVisible?'':'none';
         input.step=String(steps[id]||1);
         const src=$(id);
-        if(src && document.activeElement!==input) input.value=src.value;
-        input.disabled=!editable || !src || src.disabled;
+        const widthUsesT1=useT1&&(id==='B1'||id==='B2');
+        input.disabled=!editable || !src || src.disabled || widthUsesT1;
+        if(widthUsesT1) input.value=$('t1').value;
+        else if(src && document.activeElement!==input) input.value=src.value;
         input.classList.toggle('input-error',!!src?.classList.contains('input-error'));
       }
     });
@@ -110,6 +134,11 @@
   }
   function init(){
     ensurePanel();
+    $('resetBtn')?.addEventListener('click',()=>{
+      $('lipWidthSource').value='input';
+      $('lipWidthLink').checked=true;
+      render();
+    });
     patchRender();
     ['shapePreset','sectionType','diameterD','B','H','t1','t2','jisShapeMode','jisSteelKind','jisSteelSize'].forEach(id=>{
       const el=$(id);if(!el)return;

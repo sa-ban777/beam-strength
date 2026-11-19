@@ -26,9 +26,18 @@ function init(){
  Object.entries(v).forEach(([k,val])=>{if($(k))$(k).value=val});putMaterial(v.material);applyPreset(true)
 }
 function inputs(){
- const s=shp(),m=manual();
- return{manual:m,shape:s,sectionType:m?$('sectionType').value:s.sectionType,materialName:$('material').value,E:num($('youngModulus').value,205000),density:num($('densityInput').value,7850),yieldStress:num($('yieldStressInput').value,235),axis:$('axis').value,L:num($('spanL').value),P:num($('pointLoadP').value),w:num($('uniformLoadW').value),n:num($('deflectionRatio').value,300),D:num($('diameterD').value),B:num($('B').value),H:num($('H').value),t1:num($('t1').value),t2:num($('t2').value),t3:num($('t3').value),B1:num($('B1').value),B2:num($('B2').value),thicknessLink:$('thicknessLink')?.checked??true,shapePreset:$('shapePreset').value,g:num($('gravity').value,9.80665),loadCase:$('loadCase').value}
+ const s=shp(),m=manual(),lip=lipWidths();
+ return{manual:m,shape:s,sectionType:m?$('sectionType').value:s.sectionType,materialName:$('material').value,E:num($('youngModulus').value,205000),density:num($('densityInput').value,7850),yieldStress:num($('yieldStressInput').value,235),axis:$('axis').value,L:num($('spanL').value),P:num($('pointLoadP').value),w:num($('uniformLoadW').value),n:num($('deflectionRatio').value,300),D:num($('diameterD').value),B:num($('B').value),H:num($('H').value),t1:num($('t1').value),t2:num($('t2').value),t3:num($('t3').value),...lip,thicknessLink:$('thicknessLink')?.checked??true,shapePreset:$('shapePreset').value,g:num($('gravity').value,9.80665),loadCase:$('loadCase').value}
 }
+function lipWidths(){
+ const B1Input=num($('B1').value),B2Input=num($('B2').value);
+ const lipWidthSource=$('lipWidthSource')?.value||'input';
+ const lipWidthLink=$('lipWidthLink')?.checked??true;
+ const useT1=$('sectionType').value===LIPPED_CHANNEL&&lipWidthSource==='t1';
+ const t1=num($('t1').value);
+ return {B1:useT1?t1:B1Input,B2:useT1?t1:B2Input,B1Input,B2Input,lipWidthSource,lipWidthLink};
+}
+
 const LIPPED_CHANNEL = '内向きリップ付きコの字';
 
 function lippedChannelRectangles({B,H,B1,B2,t1,t2,t3}){
