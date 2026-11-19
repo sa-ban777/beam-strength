@@ -17,7 +17,7 @@
     const label=document.createElement('label');
     label.className='thickness-link-label';
     label.innerHTML='<input id="thicknessLink" type="checkbox" checked><span>板厚を連動</span>';
-    panel.insertBefore(label,$('dimCtrlNote'));
+    panel.querySelector('.dim-title').after(label);
     cb=$('thicknessLink');
     cb.addEventListener('change',()=>{
       if(cb.checked && isSectionShape()) syncThickness('t1');

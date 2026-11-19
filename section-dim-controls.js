@@ -28,10 +28,15 @@
       .section-dim-controls input:disabled{background:#f1f5f9;color:#94a3b8}
       .section-dim-controls .thickness-link-label{grid-column:1/-1;display:flex;align-items:center;gap:5px}
       .section-dim-controls .thickness-link-label input{width:auto!important;height:auto!important}
-      .section-dim-controls.dim-controls-lipped{position:static;max-width:none!important;grid-template-columns:repeat(2,minmax(0,1fr) minmax(0,2fr))!important;margin-top:4px}
+      .section-dim-controls.dim-controls-lipped{position:static;flex:none;max-width:none!important;grid-template-columns:repeat(2,minmax(0,1fr) minmax(0,2fr))!important;margin-top:4px}
       .section-dim-controls.dim-controls-lipped input[data-dim-input]{width:100%!important}
       .section-dim-controls.dim-controls-lipped .dim-title,.section-dim-controls.dim-controls-lipped .dim-note{grid-column:1/-1}
       #sectionCanvas.lipped-section-canvas{min-height:166px}
+      @media screen and (min-width:1400px){
+        .visual-card:has(.dim-controls-lipped){overflow-y:auto}
+        .visual-card:has(.dim-controls-lipped) .visual-split{min-height:min-content}
+        #sectionCanvas.lipped-section-canvas{height:auto!important;flex-basis:166px}
+      }
       .lip-width-controls{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
       .lip-width-controls label{display:flex;align-items:center;gap:5px}
       .lip-width-controls input{width:auto!important;height:auto!important}
@@ -58,7 +63,7 @@
     lipControls.id='lipWidthControls';
     lipControls.className='lip-width-controls';
     lipControls.innerHTML='<label>B1・B2の参照先 <select id="lipWidthSource"><option value="input">入力値</option><option value="t1">t1</option></select></label><label><input type="checkbox" id="lipWidthLink" checked>B1・B2を連動</label>';
-    $('dimCtrlNote').before(lipControls);
+    panel.querySelector('.dim-title').after(lipControls);
     $('lipWidthSource').addEventListener('change',()=>render());
     $('lipWidthLink').addEventListener('change',()=>{
       if($('lipWidthLink').checked)$('B2').value=$('B1').value;
