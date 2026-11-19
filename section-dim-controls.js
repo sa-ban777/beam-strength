@@ -1,4 +1,5 @@
 (function(){
+  const desktopLayout=window.matchMedia('screen and (min-width:1400px)');
   const ids=['diameterD','B','H','B1','B2','t1','t2','t3'];
   const labels={diameterD:'D',B:'B',H:'H',t1:'t1',t2:'t2',t3:'t3',B1:'B1',B2:'B2'};
   const steps={diameterD:1,B:1,H:1,t1:0.1,t2:0.1,t3:0.1,B1:1,B2:1};
@@ -33,9 +34,14 @@
       .section-dim-controls.dim-controls-lipped .dim-title,.section-dim-controls.dim-controls-lipped .dim-note{grid-column:1/-1}
       #sectionCanvas.lipped-section-canvas{min-height:166px}
       @media screen and (min-width:1400px){
-        .visual-card:has(.dim-controls-lipped){overflow-y:auto}
-        .visual-card:has(.dim-controls-lipped) .visual-split{min-height:min-content}
-        #sectionCanvas.lipped-section-canvas{height:auto!important;flex-basis:166px}
+        .visual-card:has(.dim-controls-lipped) .visual-split{min-height:0}
+        #sectionCanvas.lipped-section-canvas{height:auto!important;flex:1 1 166px}
+        #supportCaseCanvas.compact-support-canvas{height:150px!important;flex:0 0 150px;min-height:150px}
+        .section-dim-controls.dim-controls-lipped{grid-template-columns:repeat(3,auto minmax(0,1fr))!important;gap:2px 6px;padding:4px 6px}
+        .section-dim-controls.dim-controls-lipped input[data-dim-input]{height:19px}
+        .section-dim-controls.dim-controls-lipped .dim-title{margin:0}
+        .section-dim-controls.dim-controls-lipped select{font:inherit;height:20px}
+        .section-dim-controls.dim-controls-lipped .lip-width-controls{gap:2px 10px}
       }
       .lip-width-controls{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
       .lip-width-controls label{display:flex;align-items:center;gap:5px}
@@ -104,7 +110,12 @@
     if(!panel) return;
     const lipped=sectionType()===LIPPED_CHANNEL;
     panel.classList.toggle('dim-controls-lipped',lipped);
-    $('sectionCanvas').classList.toggle('lipped-section-canvas',lipped);
+    const sectionCanvas=$('sectionCanvas'),supportCanvas=$('supportCaseCanvas');
+    const compactSupport=lipped&&desktopLayout.matches;
+    const pane=(compactSupport?supportCanvas:sectionCanvas).parentElement;
+    if(panel.parentElement!==pane) pane.appendChild(panel);
+    sectionCanvas.classList.toggle('lipped-section-canvas',lipped);
+    supportCanvas.classList.toggle('compact-support-canvas',compactSupport);
     $('lipWidthControls').style.display=lipped?'':'none';
     const useT1=lipped&&$('lipWidthSource').value==='t1';
     const show=new Set(visibleIds());
@@ -145,6 +156,7 @@
       render();
     });
     patchRender();
+    desktopLayout.addEventListener("change",()=>render());
     ['shapePreset','sectionType','diameterD','B','H','t1','t2','jisShapeMode','jisSteelKind','jisSteelSize'].forEach(id=>{
       const el=$(id);if(!el)return;
       ['input','change'].forEach(ev=>el.addEventListener(ev,()=>setTimeout(syncPanel,0)));
