@@ -3,6 +3,7 @@
     { name: '断面形状_L字', type: 'L字', values: { B: 50, H: 50, t1: 3.2, t2: 3.2, diameterD: '' } },
     { name: '断面形状_コの字', type: 'コの字2', values: { B: 50, H: 50, t1: 3.2, t2: 3.2, diameterD: '' } },
     { name: '断面形状_凹の字', type: 'コの字', values: { B: 50, H: 50, t1: 3.2, t2: 3.2, diameterD: '' } },
+    { name: '断面形状_内向きリップ付きコの字', type: '内向きリップ付きコの字', values: { B: 100, H: 50, B1: 20, B2: 20, t1: 3.2, t2: 3.2, t3: 3.2, diameterD: '' } },
     { name: '断面形状_I(H)形', type: 'H形鋼', values: { B: 75, H: 150, t1: 3.2, t2: 3.2, diameterD: '' } },
     { name: '断面形状_円', type: '丸棒', values: { B: '', H: '', t1: 3.2, t2: 3.2, diameterD: 50 } },
     { name: '断面形状_長方形', type: '長方形', values: { B: 50, H: 50, t1: 3.2, t2: 3.2, diameterD: '' } }
@@ -34,7 +35,7 @@
   select.insertBefore(group, select.firstChild);
 
   function setDimensionValueVisibility(isSteel) {
-    ['diameterD', 'B', 'H', 't1', 't2'].forEach(id => {
+    ['diameterD', 'B', 'H', 't1', 't2', 'B1', 'B2', 't3'].forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
       el.classList.toggle('dim-value-hidden', isSteel);
@@ -49,7 +50,7 @@
     }
 
     sectionType.value = preset.type;
-    ['B', 'H', 't1', 't2', 'diameterD'].forEach(id => {
+    ['B', 'H', 't1', 't2', 'B1', 'B2', 't3', 'diameterD'].forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
       el.disabled = false;

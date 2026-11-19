@@ -8,6 +8,7 @@
     const st=val('sectionType');
     if(st==='丸棒')return '断面形状 '+st+' D='+val('diameterD')+'mm';
     if(st==='長方形')return '断面形状 '+st+' B='+val('B')+'mm H='+val('H')+'mm';
+    if(st===LIPPED_CHANNEL) return '断面形状 '+st+' '+['B','H','B1','B2','t1','t2','t3'].map(id=>id+'='+val(id)+'mm').join(' ');
     return '断面形状 '+st+' B='+val('B')+'mm H='+val('H')+'mm t1='+val('t1')+'mm t2='+val('t2')+'mm';
   }
   function buildText(){
@@ -18,7 +19,7 @@
       '総合判定：'+txt('overallBadge'),'応力判定：'+txt('stressJudge').replace(/^応力判定：/,''),'たわみ判定：'+txt('deflectionJudge').replace(/^たわみ判定：/,''),
       '安全率：'+txt('rSafety'),'最大応力：'+txt('rStress')+' N/mm²','最大たわみ：'+txt('rDefTotal')+' mm / 許容 '+txt('rDefAllow')+' mm',
       '最大曲げモーメント：'+txt('rM')+' N･mm','せん断力：'+(txt('rShearForce')||'-')+' N','せん断応力：'+(txt('rShearStress')||'-')+' N/mm²','許容せん断応力：'+(txt('rAllowShear')||'-')+' N/mm²','短期せん断安全率：'+(txt('rShearSafetyShort')||'-'),'長期せん断安全率：'+(txt('rShearSafetyLong')||'-'),
-      '断面積：'+txt('rArea')+' mm²','断面二次モーメント：'+txt('rI')+' mm⁴','断面係数：'+txt('rZ')+' mm³','概算質量：'+txt('rMass')+' kg'
+      '断面積：'+txt('rArea')+' mm²',($('sectionType').value===LIPPED_CHANNEL?'曲げたわみ計算用 I：':'断面二次モーメント：')+txt('rI')+' mm⁴','断面係数：'+txt('rZ')+' mm³','概算質量：'+txt('rMass')+' kg'
     ].join('\n');
   }
   function ensureStyle(){

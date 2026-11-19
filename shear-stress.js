@@ -39,7 +39,7 @@
     addResultCard('曲げ応力 短期','rBendRatioShort','降伏/σ','rSafety',true);
     addResultCard('曲げ応力 長期','rBendRatioLong','(降伏/1.5)/σ','rBendRatioShort',true);
     addResultCard('せん断力 V','rShearForce','N','rBendRatioLong');
-    addResultCard('せん断応力 τ','rShearStress','N/mm²','rShearForce');
+    addResultCard('平均せん断応力 τ','rShearStress','N/mm²','rShearForce');
     addResultCard('許容せん断応力','rAllowShear','N/mm²','rShearStress');
     addResultCard('せん断応力 短期','rShearSafetyShort','許容τ/τ','rAllowShear',true);
     addResultCard('せん断応力 長期','rShearSafetyLong','(許容τ/1.5)/τ','rShearSafetyShort',true);
@@ -79,10 +79,8 @@
   function values(){
     if(typeof calc!=='function')return null;
     const r=calc(),mp=momentParts(r),sp=shearParts(r),dp=deflectionParts(r);
-    const V=sp.ext+sp.self,A=r.sec.A,tau=V/A,allow=r.Fy/Math.sqrt(3);
-    const shortSF=allow/tau,longSF=(allow/1.5)/tau;
-    const bendShort=r.Fy/r.stress,bendLong=(r.Fy/1.5)/r.stress;
-    return {r,mp,sp,dp,V,A,tau,allow,shortSF,longSF,bendShort,bendLong};
+    return {r,mp,sp,dp,V:r.shearForce,A:r.sec.A,tau:r.shearStress,allow:r.shearAllow,
+      shortSF:r.shearShort,longSF:r.shearLong,bendShort:r.safety,bendLong:r.bendLong};
   }
 
   function updateCards(){
@@ -90,7 +88,7 @@
     const v=values(); if(!v)return;
     const map={rMExternal:[v.mp.ext,3],rMSelf:[v.mp.self,3],rBendRatioShort:[v.bendShort,3],rBendRatioLong:[v.bendLong,3],rShearForce:[v.V,3],rShearStress:[v.tau,3],rAllowShear:[v.allow,3],rShearSafetyShort:[v.shortSF,3],rShearSafetyLong:[v.longSF,3]};
     Object.entries(map).forEach(([id,a])=>{const el=$(id);if(el)el.textContent=fmt(a[0],a[1])});
-    ['rShearSafetyShort','rShearSafetyLong','rBendRatioShort','rBendRatioLong'].forEach(id=>{const el=$(id),box=el&&el.closest('div');if(!box)return;box.classList.remove('shear-ok','shear-ng');box.classList.add(Number(String(el.textContent).replace(/,/g,''))>=1?'shear-ok':'shear-ng')});
+    ['rShearSafetyShort','rShearSafetyLong','rBendRatioShort','rBendRatioLong'].forEach(id=>{const el=$(id),box=el&&el.closest('div');if(!box)return;box.classList.remove('shear-ok','shear-ng');box.classList.add(map[id][0]>=1?'shear-ok':'shear-ng')});
     moveSectionPerformance();
   }
 
@@ -99,12 +97,13 @@
     const r=v.r,i=r.i,mp=v.mp,sp=v.sp,dp=v.dp;
     return [
       '【1. 条件】','支持・荷重ケース：'+i.loadCase,'断面：'+(i.manual?'手入力':i.shape.name)+' / '+i.sectionType+' / '+i.axis,'材料：'+i.materialName+' / E='+fmt(r.E,0)+' N/mm² / 密度='+fmt(r.density,0)+' kg/m³ / 降伏='+fmt(r.Fy,3)+' N/mm²','L='+fmt(i.L,3)+' mm / P='+fmt(i.P,3)+' N / w='+fmt(i.w,9)+' N/mm / g='+fmt(i.g,5)+' m/s²','',
-      '【2. 断面性能】','A = '+f(r.sec.A,3,'mm²'),'I = '+f(r.sec.I,3,'mm⁴'),'Z = '+f(r.sec.Z,3,'mm³'),'重心位置 = '+f(r.sec.c,3,'mm'),'',
+      '【2. 断面性能】','A = '+f(r.sec.A,3,'mm²'),(i.sectionType===LIPPED_CHANNEL?'I（曲げ連成を考慮した有効値） = ':'I = ')+f(r.sec.I,3,'mm⁴'),'Z = '+f(r.sec.Z,3,'mm³'),'重心位置 = '+f(r.sec.c,3,'mm'),'',
       '【3. 荷重】','w_self = A × 密度 × g / 1,000,000,000','       = '+fmt(r.sec.A,3)+' × '+fmt(r.density,0)+' × '+fmt(i.g,5)+' / 1,000,000,000','       = '+f(r.selfW,9,'N/mm'),'w_total = w + w_self = '+fmt(i.w,9)+' + '+fmt(r.selfW,9)+' = '+f(r.totalW,9,'N/mm'),'',
       '【4. 曲げモーメント】','M_external = '+mp.extFormula,'           = '+mp.extSub+' = '+f(mp.ext,6,'N･mm'),'M_self     = '+mp.selfFormula,'           = '+mp.selfSub+' = '+f(mp.self,6,'N･mm'),'Mmax       = M_external + M_self','           = '+fmt(mp.ext,6)+' + '+fmt(mp.self,6)+' = '+f(r.M,6,'N･mm'),'',
       '【5. 曲げ応力】','σ = Mmax / Z = '+fmt(r.M,6)+' / '+fmt(r.sec.Z,3)+' = '+f(r.stress,6,'N/mm²'),'曲げ応力 短期 = 降伏 / σ = '+fmt(r.Fy,3)+' / '+fmt(r.stress,6)+' = '+fmt(v.bendShort,6),'曲げ応力 長期 = (降伏 / 1.5) / σ = ('+fmt(r.Fy,3)+' / 1.5) / '+fmt(r.stress,6)+' = '+fmt(v.bendLong,6),'',
       '【6. たわみ】','δ_load = '+dp.loadFormula,'       = '+dp.loadSub+' = '+f(r.dLoad,9,'mm'),'δ_self = '+dp.selfFormula,'       = '+dp.selfSub+' = '+f(r.dSelf,9,'mm'),'δ_total = δ_load + δ_self','        = '+fmt(r.dLoad,9)+' + '+fmt(r.dSelf,9)+' = '+f(r.dTotal,9,'mm'),'許容たわみ = L / n = '+fmt(i.L,3)+' / '+fmt(i.n,3)+' = '+f(r.dAllow,6,'mm'),'',
-      '【7. せん断応力】','V_external = '+sp.extFormula,'           = '+sp.extSub+' = '+f(sp.ext,6,'N'),'V_self     = '+sp.selfFormula,'           = '+sp.selfSub+' = '+f(sp.self,6,'N'),'V          = V_external + V_self = '+fmt(sp.ext,6)+' + '+fmt(sp.self,6)+' = '+f(v.V,6,'N'),'τ = V / A = '+fmt(v.V,6)+' / '+fmt(v.A,3)+' = '+f(v.tau,6,'N/mm²'),'許容せん断応力 = 降伏 / √3 = '+fmt(r.Fy,3)+' / √3 = '+f(v.allow,6,'N/mm²'),'せん断応力 短期 = 許容せん断応力 / τ = '+fmt(v.allow,6)+' / '+fmt(v.tau,6)+' = '+fmt(v.shortSF,6),'せん断応力 長期 = (許容せん断応力 / 1.5) / τ = ('+fmt(v.allow,6)+' / 1.5) / '+fmt(v.tau,6)+' = '+fmt(v.longSF,6)
+      '【7. 平均せん断応力】','V_external = '+sp.extFormula,'           = '+sp.extSub+' = '+f(sp.ext,6,'N'),'V_self     = '+sp.selfFormula,'           = '+sp.selfSub+' = '+f(sp.self,6,'N'),'V          = V_external + V_self = '+fmt(sp.ext,6)+' + '+fmt(sp.self,6)+' = '+f(v.V,6,'N'),'τ = V / A = '+fmt(v.V,6)+' / '+fmt(v.A,3)+' = '+f(v.tau,6,'N/mm²'),'許容せん断応力 = 降伏 / √3 = '+fmt(r.Fy,3)+' / √3 = '+f(v.allow,6,'N/mm²'),'せん断応力 短期 = 許容せん断応力 / τ = '+fmt(v.allow,6)+' / '+fmt(v.tau,6)+' = '+fmt(v.shortSF,6),'せん断応力 長期 = (許容せん断応力 / 1.5) / τ = ('+fmt(v.allow,6)+' / 1.5) / '+fmt(v.tau,6)+' = '+fmt(v.longSF,6),
+      '総合判定には平均せん断応力による長期安全率を使用します。'
     ].join('\n');
   }
 

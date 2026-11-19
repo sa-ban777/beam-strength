@@ -2,9 +2,9 @@
   const $=id=>document.getElementById(id);
   const fire=el=>{if(el){el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}};
   const set=(id,v)=>{const el=$(id);if(el&&v!==undefined&&v!==null){el.value=v;fire(el);}};
-  function presetOf(sectionType){return {'L字':'断面形状_L字','コの字2':'断面形状_コの字','コの字':'断面形状_凹の字','I形鋼':'断面形状_I(H)形','H形鋼':'断面形状_I(H)形','丸棒':'断面形状_円','長方形':'断面形状_長方形'}[sectionType]||'断面形状_長方形'}
+  function presetOf(sectionType){return {'L字':'断面形状_L字','コの字2':'断面形状_コの字',[LIPPED_CHANNEL]:'断面形状_内向きリップ付きコの字','コの字':'断面形状_凹の字','I形鋼':'断面形状_I(H)形','H形鋼':'断面形状_I(H)形','丸棒':'断面形状_円','長方形':'断面形状_長方形'}[sectionType]||'断面形状_長方形'}
   function hasOption(sel,v){return !!sel&&[...sel.options].some(o=>o.value===v)}
-  function normalize(j){return{shape:j.shapePreset||(j.shape&&j.shape.name),manual:j.manual,sectionType:j.sectionType,material:j.material||j.materialName,E:j.E??j.youngModulus,density:j.density??j.densityInput,yieldStress:j.yieldStress??j.Fy??j.yieldStressInput,axis:j.axis,L:j.L??j.spanL,P:j.P??j.pointLoadP,w:j.w??j.uniformLoadW,n:j.n??j.deflectionRatio,D:j.D??j.diameterD,B:j.B,H:j.H,t1:j.t1,t2:j.t2,g:j.g??j.gravity,loadCase:j.loadCase,calcLocation:j.calcLocation??j.calculationLocation??j.location??'',savedAt:j.savedAt}}
+  function normalize(j){return{shape:j.shapePreset||(j.shape&&j.shape.name),manual:j.manual,sectionType:j.sectionType,material:j.material||j.materialName,E:j.E??j.youngModulus,density:j.density??j.densityInput,yieldStress:j.yieldStress??j.Fy??j.yieldStressInput,axis:j.axis,L:j.L??j.spanL,P:j.P??j.pointLoadP,w:j.w??j.uniformLoadW,n:j.n??j.deflectionRatio,D:j.D??j.diameterD,B:j.B,H:j.H,t1:j.t1,t2:j.t2,t3:j.t3,B1:j.B1,B2:j.B2,thicknessLink:j.thicknessLink,g:j.g??j.gravity,loadCase:j.loadCase,calcLocation:j.calcLocation??j.calculationLocation??j.location??'',savedAt:j.savedAt}}
   function restoreShape(d,cb){
     const mode=$('jisShapeMode'),kind=$('jisSteelKind'),size=$('jisSteelSize'),hidden=$('shapePreset');
     const shapes=(window.BEAM_XLSM_DATA&&window.BEAM_XLSM_DATA.shapes)||[];
@@ -42,7 +42,15 @@
     restoreShape(d,()=>setTimeout(()=>{
       set('calcLocation',d.calcLocation);set('sectionType',d.sectionType);set('material',d.material);set('loadCase',d.loadCase);set('axis',d.axis);
       set('deflectionRatio',d.n);set('spanL',d.L);set('pointLoadP',d.P);set('uniformLoadW',d.w);set('gravity',d.g);
-      set('diameterD',d.D);set('B',d.B);set('H',d.H);set('t1',d.t1);set('t2',d.t2);
+      const link=$('thicknessLink');
+      if(link)link.checked=false;
+      set('diameterD',d.D);set('B',d.B);set('H',d.H);set('B1',d.B1);set('B2',d.B2);
+      set('t1',d.t1);set('t2',d.t2);set('t3',d.t3);
+      if(link){
+        const thicknesses=[d.t1,d.t2,...(d.sectionType===LIPPED_CHANNEL?[d.t3]:[])].filter(v=>v!==undefined&&v!==null).map(Number);
+        link.checked=d.thicknessLink??thicknesses.every(v=>v===thicknesses[0]);
+        fire(link);
+      }
       set('youngModulus',d.E);set('densityInput',d.density);set('yieldStressInput',d.yieldStress);
       if(typeof render==='function')render();
       const b=$('jsonImportBtn');if(b){const t=b.textContent;b.textContent='JSON読込完了';setTimeout(()=>b.textContent=t,1200)}

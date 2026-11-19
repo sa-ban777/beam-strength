@@ -12,6 +12,7 @@
     ['断面形状_L字','断面形状_L字'],
     ['断面形状_コの字','断面形状_コの字'],
     ['断面形状_凹の字','断面形状_凹の字'],
+    ['断面形状_内向きリップ付きコの字','内向きリップ付きコの字'],
     ['断面形状_I(H)形','断面形状_I(H)形'],
     ['断面形状_円','断面形状_円'],
     ['断面形状_長方形','断面形状_長方形']
@@ -109,4 +110,13 @@
     }
   }
   applySelection();
+  const initialMode=mode.select.value,initialKind=kind.select.value,initialSize=size.select.value;
+  document.getElementById('resetBtn')?.addEventListener('click',()=>{
+    mode.select.value=initialMode;
+    if(initialMode==='__steel__'){
+      kind.select.value=initialKind;
+      refreshSizes(initialSize);
+    }
+    applySelection();
+  });
 })();

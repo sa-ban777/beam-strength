@@ -30,7 +30,7 @@
     ctx.setTransform(ratio,0,0,ratio,0,0);
     const dw=Math.max(i.B||i.D||1,1);
     const dh=Math.max(i.H||i.D||1,1);
-    const scale=Math.min((W-90)/dw,(Hc-64)/dh)*0.86;
+    const scale=Math.max(0,Math.min((W-90)/dw,(Hc-(i.sectionType===LIPPED_CHANNEL?68:64))/dh)*0.86);
     const drawW=dw*scale;
     const drawH=dh*scale;
     const x0=(W-drawW)/2;
@@ -49,7 +49,7 @@
   }
   window.drawSection=function(i,sec){
     baseDrawSection(i,sec);
-    drawAxisLoadArrow(i);
+    if(Number.isFinite(sec.A)) drawAxisLoadArrow(i);
   };
   if(typeof render==='function') render();
 })();

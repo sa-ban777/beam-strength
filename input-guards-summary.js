@@ -1,5 +1,5 @@
 (function(){
-  const DIM_IDS=['diameterD','B','H','t1','t2'];
+  const DIM_IDS=['diameterD','B','H','t1','t2','B1','B2','t3'];
   function $(id){return document.getElementById(id)}
   function n(id){const el=$(id);const v=Number(el&&el.value);return Number.isFinite(v)?v:NaN}
   function txt(id){const el=$(id);return el?String(el.value||''):''}
@@ -34,11 +34,8 @@
   function setDimVisibility(){
     DIM_IDS.forEach(id=>{const l=labelOf(id);if(l)l.classList.add('input-field-hidden')});
     ['shapePreset','loadCase','axis'].forEach(id=>{const l=labelOf(id);if(l)l.classList.add('input-field-hidden')});
-    const link=$('thicknessLink');
-    const linkLabel=link&&link.closest('label');
-    if(linkLabel)linkLabel.classList.add('input-field-hidden');
   }
-  function clearErrors(){['spanL','B','H','diameterD','t1','t2','youngModulus','densityInput','yieldStressInput','pointLoadP','uniformLoadW','deflectionRatio','gravity'].forEach(id=>{const el=$(id);if(el)el.classList.remove('input-error')})}
+  function clearErrors(){['spanL','B','H','diameterD','t1','t2','B1','B2','t3','youngModulus','densityInput','yieldStressInput','pointLoadP','uniformLoadW','deflectionRatio','gravity'].forEach(id=>{const el=$(id);if(el)el.classList.remove('input-error')})}
   function mark(id){const el=$(id);if(el)el.classList.add('input-error')}
   function add(errors,msg,...ids){errors.push(msg);ids.forEach(mark)}
   function validate(){
@@ -72,6 +69,14 @@
         if(!(t2>0))add(errors,'t2 は 0 より大きくしてください','t2');
         if(Number.isFinite(t1)&&Number.isFinite(H)&&t1>H)add(errors,'t1 が H より大きくなっています','t1','H');
         if(Number.isFinite(t2)&&Number.isFinite(B)&&t2>B)add(errors,'t2 が B より大きくなっています','t2','B');
+        if(st===LIPPED_CHANNEL){
+          const B1=n('B1'),B2=n('B2'),t3=n('t3');
+          if(!(t3>0))add(errors,'t3 は 0 より大きくしてください','t3');
+          if(!(t1+t3<H))add(errors,'t1＋t3 は H 未満にしてください','t1','t3','H');
+          if(!(B1>=t2))add(errors,'B1 は t2 以上にしてください','B1','t2');
+          if(!(B2>=t2))add(errors,'B2 は t2 以上にしてください','B2','t2');
+          if(!(B1+B2<B))add(errors,'B1＋B2 は B 未満にしてください','B1','B2','B');
+        }
         if(['I形鋼','H形鋼'].includes(st)&&Number.isFinite(t1)&&Number.isFinite(H)&&2*t1>=H)add(errors,'I/H形は 2×t1 が H 未満になるようにしてください','t1','H');
         if(['コの字','コの字2'].includes(st)&&Number.isFinite(t1)&&Number.isFinite(H)&&t1>=H)add(errors,'コの字は t1 が H 未満になるようにしてください','t1','H');
       }
@@ -91,6 +96,7 @@
     else if(st==='丸棒') dims='D='+fmt(n('diameterD'));
     else if(st==='長方形') dims='B='+fmt(n('B'))+' / H='+fmt(n('H'));
     else dims='B='+fmt(n('B'))+' / H='+fmt(n('H'))+' / t1='+fmt(n('t1'))+' / t2='+fmt(n('t2'));
+    if(st===LIPPED_CHANNEL) dims+=' / '+['B1','B2','t3'].map(id=>id+'='+fmt(n(id))).join(' / ');
     const force=load.includes('等分布')?'w='+fmt(n('uniformLoadW'),6)+'N/mm':'P='+fmt(n('pointLoadP'),1)+'N';
     summary.textContent=shape+'｜'+dims+'｜'+txt('axis')+'｜L='+fmt(n('spanL'),1)+'mm｜'+force+'｜材料='+txt('material')+'｜支持='+load;
   }
@@ -102,6 +108,11 @@
     if(warn){warn.classList.toggle('show',errors.length>0);warn.textContent=errors.length?'入力確認：'+errors.join(' / '):''}
     const badge=$('shapeCheckBadge');
     if(badge&&errors.length){badge.textContent='断面判定：入力確認';badge.className='badge ng'}
+    if(errors.length){
+      const overall=$('overallBadge');
+      overall.textContent='参考値';
+      overall.className='big-badge warn';
+    }
   }
   function patchRender(){
     if(typeof render!=='function'||render._inputGuardsPatched)return;
@@ -114,7 +125,7 @@
     window.render._inputGuardsPatched=true;
   }
   function bind(){
-    ['shapePreset','jisShapeMode','jisSteelKind','jisSteelSize','sectionType','axis','material','loadCase','spanL','pointLoadP','uniformLoadW','diameterD','B','H','t1','t2','youngModulus','densityInput','yieldStressInput','deflectionRatio','gravity'].forEach(id=>{
+    ['shapePreset','jisShapeMode','jisSteelKind','jisSteelSize','sectionType','axis','material','loadCase','spanL','pointLoadP','uniformLoadW','diameterD','B','H','t1','t2','B1','B2','t3','youngModulus','densityInput','yieldStressInput','deflectionRatio','gravity'].forEach(id=>{
       const el=$(id);if(!el||el.dataset.inputGuardsBound==='1')return;
       el.dataset.inputGuardsBound='1';
       el.addEventListener('input',()=>setTimeout(apply,0));

@@ -27,9 +27,49 @@ function init(){
 }
 function inputs(){
  const s=shp(),m=manual();
- return{manual:m,shape:s,sectionType:m?$('sectionType').value:s.sectionType,materialName:$('material').value,E:num($('youngModulus').value,205000),density:num($('densityInput').value,7850),yieldStress:num($('yieldStressInput').value,235),axis:$('axis').value,L:num($('spanL').value),P:num($('pointLoadP').value),w:num($('uniformLoadW').value),n:num($('deflectionRatio').value,300),D:num($('diameterD').value),B:num($('B').value),H:num($('H').value),t1:num($('t1').value),t2:num($('t2').value),g:num($('gravity').value,9.80665),loadCase:$('loadCase').value}
+ return{manual:m,shape:s,sectionType:m?$('sectionType').value:s.sectionType,materialName:$('material').value,E:num($('youngModulus').value,205000),density:num($('densityInput').value,7850),yieldStress:num($('yieldStressInput').value,235),axis:$('axis').value,L:num($('spanL').value),P:num($('pointLoadP').value),w:num($('uniformLoadW').value),n:num($('deflectionRatio').value,300),D:num($('diameterD').value),B:num($('B').value),H:num($('H').value),t1:num($('t1').value),t2:num($('t2').value),t3:num($('t3').value),B1:num($('B1').value),B2:num($('B2').value),thicknessLink:$('thicknessLink')?.checked??true,shapePreset:$('shapePreset').value,g:num($('gravity').value,9.80665),loadCase:$('loadCase').value}
 }
+const LIPPED_CHANNEL = '内向きリップ付きコの字';
+
+function lippedChannelRectangles({B,H,B1,B2,t1,t2,t3}){
+ if(!(t1>0 && t2>0 && t3>0 && t1+t3<H && B1>=t2 && B2>=t2 && B1+B2<B)) return [];
+ return [
+  {x:0,y:H-t1,b:B,h:t1},
+  {x:0,y:t3,b:t2,h:H-t1-t3},
+  {x:B-t2,y:t3,b:t2,h:H-t1-t3},
+  {x:0,y:0,b:B1,h:t3},
+  {x:B-B2,y:0,b:B2,h:t3}
+ ];
+}
+
+function lippedChannelSection(i){
+ const rectangles=lippedChannelRectangles(i);
+ if(!rectangles.length) return {A:NaN,c:NaN,I:NaN,Z:NaN};
+ const parts=rectangles.map(({x,y,b,h})=>({x:x+b/2,y:y+h/2,A:b*h,b,h}));
+ const sum=fn=>parts.reduce((total,p)=>total+fn(p),0);
+ const A=sum(p=>p.A);
+ const cx=sum(p=>p.A*p.x)/A,cy=sum(p=>p.A*p.y)/A;
+ const Ix=sum(p=>p.b*p.h**3/12+p.A*(p.y-cy)**2);
+ const Iy=sum(p=>p.h*p.b**3/12+p.A*(p.x-cx)**2);
+ const Ixy=sum(p=>p.A*(p.x-cx)*(p.y-cy));
+ const aboutY=isY(i.axis);
+ const I=aboutY?Iy-Ixy**2/Ix:Ix-Ixy**2/Iy;
+ const coupling=aboutY?Ixy/Ix:Ixy/Iy;
+ // The other bending axis is free to develop curvature.
+ let extreme=0;
+ for(const {x,y,b,h} of rectangles){
+  for(const px of [x,x+b]){
+   for(const py of [y,y+h]){
+    const distance=aboutY?(px-cx)-coupling*(py-cy):(py-cy)-coupling*(px-cx);
+    extreme=Math.max(extreme,Math.abs(distance));
+   }
+  }
+ }
+ return {A,c:aboutY?cx:cy,I,Z:div(I,extreme),cx,cy,coupling};
+}
+
 function sectionManual(i){
+ if(i.sectionType===LIPPED_CHANNEL) return lippedChannelSection(i);
  const D=i.D,B=i.B,H=i.H,t1=i.t1,t2=i.t2,y=isY(i.axis);let A=NaN,c=NaN,I=NaN,Z=NaN;
  if(i.sectionType==='丸棒'){A=Math.PI*D**2/4;c=D/2;I=Math.PI*D**4/64;Z=div(I,D/2)}
  else if(i.sectionType==='長方形'){A=B*H;c=y?B/2:H/2;I=y?H*B**3/12:B*H**3/12;Z=y?div(I,B/2):div(I,H/2)}
@@ -48,9 +88,16 @@ function calc(){const i=inputs(),sec=section(i),E=i.E,d=i.density,Fy=i.yieldStre
  else if(i.loadCase==='片持ち・等分布荷重'){M=totalW*L**2/2;dl=div(w*L**4,8*E*I);ds=div(selfW*L**4,8*E*I)}
  else if(i.loadCase==='両端固定・中央集中荷重'){M=P*L/8+selfW*L**2/12;dl=div(P*L**3,192*E*I);ds=div(selfW*L**4,384*E*I)}
  else{M=totalW*L**2/12;dl=div(w*L**4,384*E*I);ds=div(selfW*L**4,384*E*I)}
- const stress=div(M,sec.Z),safety=div(Fy,stress),dt=dl+ds,da=div(L,i.n),mass=sec.A*L*d/1e9,usedLoad=i.loadCase.includes('等分布')?w:P,usedUnit=i.loadCase.includes('等分布')?'N/mm':'N',stressJudge=safety>=1?'OK':'NG',deflectionJudge=dt<=da?'OK':'NG',sectionCheck=valid(i),overall=sectionCheck==='OK'&&stressJudge==='OK'&&deflectionJudge==='OK'?'OK':'NG';return{i,sec,E,density:d,Fy,selfW,totalW,M,stress,safety,dLoad:dl,dSelf:ds,dTotal:dt,dAllow:da,mass,usedLoad,usedUnit,stressJudge,deflectionJudge,sectionCheck,overall}}
+ const distributed = i.loadCase.includes('等分布');
+ const cantilever = i.loadCase.startsWith('片持ち');
+ const shearForce = (distributed ? totalW*L : P+selfW*L)/(cantilever?1:2);
+ const shearStress = div(shearForce,sec.A);
+ const shearAllow = Fy/Math.sqrt(3);
+ const shearShort = div(shearAllow,shearStress);
+ const shearLong = shearShort/1.5;
+ const stress=div(M,sec.Z),safety=div(Fy,stress),dt=dl+ds,da=div(L,i.n),mass=sec.A*L*d/1e9,usedLoad=i.loadCase.includes('等分布')?w:P,usedUnit=i.loadCase.includes('等分布')?'N/mm':'N',bendLong=safety/1.5,stressJudge=bendLong>=1&&shearLong>=1?(safety>=3?'OK':'△'):'NG',deflectionJudge=dt<=da?'OK':'NG',sectionCheck=valid(i),overall=sectionCheck==='OK'&&deflectionJudge==='OK'?stressJudge:'NG';return{i,sec,E,shearForce,shearStress,shearAllow,shearShort,shearLong,bendLong,density:d,Fy,selfW,totalW,M,stress,safety,dLoad:dl,dSelf:ds,dTotal:dt,dAllow:da,mass,usedLoad,usedUnit,stressJudge,deflectionJudge,sectionCheck,overall}}
 function badge(el,text,cls){el.className=el.classList.contains('big-badge')?'big-badge':'badge';el.textContent=text;if(cls)el.classList.add(cls)}
-function render(){const r=calc();badge($('shapeCheckBadge'),'断面判定：'+r.sectionCheck,r.sectionCheck==='OK'?'ok':'ng');badge($('overallBadge'),r.overall,r.overall==='OK'?'ok':'ng');[['rE',r.E,0],['rDensity',r.density,0],['rYield',r.Fy,3],['rArea',r.sec.A,3],['rCentroid',r.sec.c,3],['rI',r.sec.I,3],['rZ',r.sec.Z,3],['rUsedLoad',r.usedLoad,6],['rSelfW',r.selfW,9],['rTotalW',r.totalW,9],['rM',r.M,3],['rStress',r.stress,3],['rSafety',r.safety,3],['rDefLoad',r.dLoad,6],['rDefSelf',r.dSelf,6],['rDefTotal',r.dTotal,6],['rDefAllow',r.dAllow,3],['rMass',r.mass,6]].forEach(a=>$(a[0]).textContent=fmt(a[1],a[2]));$('rUsedLoadUnit').textContent=r.usedUnit;badge($('stressJudge'),'応力判定：'+r.stressJudge,r.stressJudge==='OK'?'ok':'ng');badge($('deflectionJudge'),'たわみ判定：'+r.deflectionJudge,r.deflectionJudge==='OK'?'ok':'ng');$('formulaMemo').textContent='支持・荷重ケース：'+r.i.loadCase+'\n断面：'+(r.i.manual?'手入力':r.i.shape.name)+' / '+r.i.sectionType+' / '+r.i.axis+'\n材料：'+r.i.materialName+' / E='+fmt(r.E,0)+' / 密度='+fmt(r.density,0)+' / 降伏='+fmt(r.Fy,3)+'\n\nw_self = A × 密度 × g / 1,000,000,000 = '+fmt(r.selfW,9)+' N/mm\nw_total = '+fmt(r.totalW,9)+' N/mm\nMmax = '+fmt(r.M,6)+' N･mm\nσ = Mmax / Z = '+fmt(r.stress,6)+' N/mm²\n安全率 = '+fmt(r.safety,6)+'\nδ_load = '+fmt(r.dLoad,9)+' mm\nδ_self = '+fmt(r.dSelf,9)+' mm\nδ_total = '+fmt(r.dTotal,9)+' mm\n許容たわみ = '+fmt(r.dAllow,6)+' mm';drawSection(r.i,r.sec);drawSupportCaseChart(r.i.loadCase);drawMoment(r)}
+function render(){const r=calc();badge($('shapeCheckBadge'),'断面判定：'+r.sectionCheck,r.sectionCheck==='OK'?'ok':'ng');badge($('overallBadge'),r.overall,r.overall==='△'?'warn':r.overall.toLowerCase());[['rE',r.E,0],['rDensity',r.density,0],['rYield',r.Fy,3],['rArea',r.sec.A,3],['rCentroid',r.sec.c,3],['rI',r.sec.I,3],['rZ',r.sec.Z,3],['rUsedLoad',r.usedLoad,6],['rSelfW',r.selfW,9],['rTotalW',r.totalW,9],['rM',r.M,3],['rStress',r.stress,3],['rSafety',r.safety,3],['rDefLoad',r.dLoad,6],['rDefSelf',r.dSelf,6],['rDefTotal',r.dTotal,6],['rDefAllow',r.dAllow,3],['rMass',r.mass,6]].forEach(a=>$(a[0]).textContent=fmt(a[1],a[2]));$('rUsedLoadUnit').textContent=r.usedUnit;badge($('stressJudge'),'応力判定：'+r.stressJudge,r.stressJudge==='△'?'warn':r.stressJudge.toLowerCase());badge($('deflectionJudge'),'たわみ判定：'+r.deflectionJudge,r.deflectionJudge==='OK'?'ok':'ng');$('formulaMemo').textContent='支持・荷重ケース：'+r.i.loadCase+'\n断面：'+(r.i.manual?'手入力':r.i.shape.name)+' / '+r.i.sectionType+' / '+r.i.axis+'\n材料：'+r.i.materialName+' / E='+fmt(r.E,0)+' / 密度='+fmt(r.density,0)+' / 降伏='+fmt(r.Fy,3)+'\n\nw_self = A × 密度 × g / 1,000,000,000 = '+fmt(r.selfW,9)+' N/mm\nw_total = '+fmt(r.totalW,9)+' N/mm\nMmax = '+fmt(r.M,6)+' N･mm\nσ = Mmax / Z = '+fmt(r.stress,6)+' N/mm²\n安全率 = '+fmt(r.safety,6)+'\nδ_load = '+fmt(r.dLoad,9)+' mm\nδ_self = '+fmt(r.dSelf,9)+' mm\nδ_total = '+fmt(r.dTotal,9)+' mm\n許容たわみ = '+fmt(r.dAllow,6)+' mm';drawSection(r.i,r.sec);drawSupportCaseChart(r.i.loadCase);drawMoment(r)}
 function canvasSize(c){const ratio=window.devicePixelRatio||1,w=Math.max(1,Math.round(c.clientWidth||c.width)),h=Math.max(1,Math.round(c.clientHeight||c.height));if(c.width!==Math.round(w*ratio)||c.height!==Math.round(h*ratio)){c.width=Math.round(w*ratio);c.height=Math.round(h*ratio)}const ctx=c.getContext('2d');ctx.setTransform(ratio,0,0,ratio,0,0);return{ctx,w,h}}
 function dimLine(ctx,x1,y1,x2,y2,t,v=false){ctx.save();ctx.strokeStyle=ctx.fillStyle='#2563eb';ctx.lineWidth=1.3;ctx.font='11px sans-serif';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();if(v){ctx.beginPath();ctx.moveTo(x1-4,y1);ctx.lineTo(x1+4,y1);ctx.moveTo(x2-4,y2);ctx.lineTo(x2+4,y2);ctx.stroke();ctx.save();ctx.translate(x1+12,(y1+y2)/2);ctx.rotate(-Math.PI/2);ctx.fillText(t,-ctx.measureText(t).width/2,0);ctx.restore()}else{ctx.beginPath();ctx.moveTo(x1,y1-4);ctx.lineTo(x1,y1+4);ctx.moveTo(x2,y2-4);ctx.lineTo(x2,y2+4);ctx.stroke();ctx.fillText(t,(x1+x2)/2-ctx.measureText(t).width/2,y1-5)}ctx.restore()}
 function drawSection(i,sec){const s=canvasSize($('sectionCanvas')),ctx=s.ctx,W=s.w,Hc=s.h;ctx.clearRect(0,0,W,Hc);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,Hc);const dw=Math.max(i.B||i.D||1,1),dh=Math.max(i.H||i.D||1,1),sc=Math.min((W-90)/dw,(Hc-64)/dh)*.86,x0=(W-dw*sc)/2,y0=(Hc-dh*sc)/2,B=i.B*sc,H=i.H*sc,t1=i.t1*sc,t2=i.t2*sc,D=i.D*sc;ctx.strokeStyle='#0f172a';ctx.lineWidth=2;ctx.fillStyle='#dbeafe';function R(x,y,w,h){ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h)}if(i.sectionType==='丸棒'){ctx.beginPath();ctx.arc(W/2,Hc/2,D/2,0,7);ctx.fill();ctx.stroke()}else if(i.sectionType==='L字'){R(x0,y0,t2,H);R(x0,y0+H-t1,B,t1)}else if(i.sectionType==='コの字'){R(x0,y0,B,t1);R(x0,y0+t1,t2,H-t1);R(x0+B-t2,y0+t1,t2,H-t1)}else if(i.sectionType==='コの字2'){R(x0,y0,t2,H);R(x0+t2,y0,B-t2,t1);R(x0+t2,y0+H-t1,B-t2,t1)}else if(i.sectionType==='長方形'){R(x0,y0,B,H)}else{R(x0,y0,B,t1);R(x0+(B-t2)/2,y0+t1,t2,H-2*t1);R(x0,y0+H-t1,B,t1)}ctx.save();ctx.setLineDash([6,5]);ctx.strokeStyle='#c62828';ctx.beginPath();const cy=y0+((i.H||i.D)-sec.c)*sc;ctx.moveTo(16,cy);ctx.lineTo(W-16,cy);ctx.stroke();ctx.restore();ctx.font='11px sans-serif';if(i.sectionType==='丸棒'){dimLine(ctx,W/2-D/2,Hc-20,W/2+D/2,Hc-20,'D='+fmt(i.D,3)+' mm')}else{dimLine(ctx,x0,Hc-20,x0+B,Hc-20,'B='+fmt(i.B,3)+' mm');dimLine(ctx,x0-18,y0,x0-18,y0+H,'H='+fmt(i.H,3)+' mm',true);if(['L字','コの字','コの字2','I形鋼','H形鋼'].includes(i.sectionType)){const t2x1=i.sectionType==='I形鋼'||i.sectionType==='H形鋼'?x0+(B-t2)/2:x0;const t2x2=i.sectionType==='I形鋼'||i.sectionType==='H形鋼'?x0+(B+t2)/2:x0+t2;dimLine(ctx,t2x1,y0-8,t2x2,y0-8,'t2='+fmt(i.t2,3));dimLine(ctx,x0+B+14,y0,x0+B+14,y0+t1,'t1='+fmt(i.t1,3),true)}}ctx.fillStyle='#334155';ctx.font='11px sans-serif';ctx.fillText('断面形状：'+i.sectionType,12,Hc-5)}

@@ -9,29 +9,15 @@
     el.dispatchEvent(new Event('input',{bubbles:true}));
     el.dispatchEvent(new Event('change',{bubbles:true}));
   }
-  function ensureStyle(){
-    if($('thicknessLinkStyle'))return;
-    const style=document.createElement('style');
-    style.id='thicknessLinkStyle';
-    style.textContent=`
-      .thickness-link-label{display:flex;align-items:center;justify-content:space-between;gap:8px}
-      .thickness-link-label span{display:flex;align-items:center;gap:6px;font-weight:800;color:#334155}
-      .thickness-link-label input{width:auto;accent-color:#2563eb}
-      .thickness-link-label small{font-size:10px;color:#64748b}
-    `;
-    document.head.appendChild(style);
-  }
   function ensureCheckbox(){
-    ensureStyle();
     let cb=$('thicknessLink');
     if(cb)return cb;
-    const t2=$('t2');
-    const t2Label=t2&&t2.closest('label');
-    if(!t2Label||!t2Label.parentNode)return null;
+    const panel=$('sectionDimControls');
+    if(!panel)return null;
     const label=document.createElement('label');
     label.className='thickness-link-label';
-    label.innerHTML='<span><input id="thicknessLink" type="checkbox" checked>t1/t2連動</span><small>形鋼時は無効</small>';
-    t2Label.parentNode.insertBefore(label,t2Label.nextSibling);
+    label.innerHTML='<input id="thicknessLink" type="checkbox" checked><span>板厚を連動</span>';
+    panel.insertBefore(label,$('dimCtrlNote'));
     cb=$('thicknessLink');
     cb.addEventListener('change',()=>{
       if(cb.checked && isSectionShape()) syncThickness('t1');
@@ -44,9 +30,10 @@
     const cb=ensureCheckbox();
     const wrap=cb&&cb.closest('label');
     if(!cb||!wrap)return;
-    const steel=isSteel();
-    cb.disabled=steel;
-    wrap.style.opacity=steel?0.45:1;
+    const st=$('sectionType').value;
+    cb.disabled=isSteel()||st==='丸棒'||st==='長方形';
+    wrap.style.display=cb.disabled?'none':'';
+    wrap.querySelector('span').textContent=st===LIPPED_CHANNEL?'t1・t2・t3を連動':'t1・t2を連動';
   }
   function setMaterialSPCC(){
     const mat=$('material');
@@ -61,6 +48,7 @@
     const t1=$('t1'),t2=$('t2');
     if(t1&&!t1.disabled)t1.value=DEFAULT_T;
     if(t2&&!t2.disabled)t2.value=DEFAULT_T;
+    if($('sectionType').value===LIPPED_CHANNEL)$('t3').value=DEFAULT_T;
     setMaterialSPCC();
     syncCheckboxState();
     if(typeof render==='function')render();
@@ -69,16 +57,21 @@
     const cb=ensureCheckbox();
     if(syncing||!cb||!cb.checked||isSteel())return;
     const src=$(sourceId);
-    const dst=$(sourceId==='t1'?'t2':'t1');
-    if(!src||!dst||dst.disabled)return;
+    const ids=$('sectionType').value===LIPPED_CHANNEL?['t1','t2','t3']:['t1','t2'];
+    if(!src||!ids.includes(sourceId))return;
     syncing=true;
-    dst.value=src.value;
-    dispatch(dst);
-    syncing=false;
+    try{
+      const targets=ids.filter(id=>id!==sourceId).map($).filter(el=>el&&!el.disabled&&el.value!==src.value);
+      targets.forEach(el=>el.value=src.value);
+      targets.forEach(dispatch);
+    }finally{
+      syncing=false;
+    }
   }
   function bind(){
     ensureCheckbox();
-    ['t1','t2'].forEach(id=>{
+    $('resetBtn')?.addEventListener('click',()=>{const cb=ensureCheckbox();if(cb){cb.checked=true;syncThickness('t1');render();}});
+    ['t1','t2','t3'].forEach(id=>{
       const el=$(id);if(!el||el.dataset.thicknessLinkBound==='1')return;
       el.dataset.thicknessLinkBound='1';
       el.addEventListener('input',()=>syncThickness(id));

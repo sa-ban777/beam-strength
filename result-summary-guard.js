@@ -54,7 +54,7 @@
   function setItemState(item,judge,ref){
     if(!item)return;
     item.classList.remove('judge-ok','judge-ng','judge-ref');
-    if(ref)item.classList.add('judge-ref');
+    if(ref||judge==='△')item.classList.add('judge-ref');
     else if(String(judge).includes('OK'))item.classList.add('judge-ok');
     else if(String(judge).includes('NG'))item.classList.add('judge-ng');
   }

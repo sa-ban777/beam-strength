@@ -1,7 +1,7 @@
 (function(){
-  const DIM_IDS=['diameterD','B','H','t1','t2'];
-  const LABELS={diameterD:'D',B:'B',H:'H',t1:'t1',t2:'t2'};
-  const STEPS={diameterD:1,B:1,H:1,t1:0.1,t2:0.1};
+  const DIM_IDS=['diameterD','B','H','t1','t2','B1','B2','t3'];
+  const LABELS={diameterD:'D',B:'B',H:'H',t1:'t1',t2:'t2',t3:'t3',B1:'B1',B2:'B2'};
+  const STEPS={diameterD:1,B:1,H:1,t1:0.1,t2:0.1,t3:0.1,B1:1,B2:1};
   let timer=null;
   function $(id){return document.getElementById(id)}
   function decimals(step){const s=String(step);return s.includes('.')?s.split('.')[1].length:0}

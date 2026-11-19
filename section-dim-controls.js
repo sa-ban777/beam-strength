@@ -1,13 +1,14 @@
 (function(){
-  const ids=['diameterD','B','H','t1','t2'];
-  const labels={diameterD:'D',B:'B',H:'H',t1:'t1',t2:'t2'};
-  const steps={diameterD:1,B:1,H:1,t1:0.1,t2:0.1};
+  const ids=['diameterD','B','H','B1','B2','t1','t2','t3'];
+  const labels={diameterD:'D',B:'B',H:'H',t1:'t1',t2:'t2',t3:'t3',B1:'B1',B2:'B2'};
+  const steps={diameterD:1,B:1,H:1,t1:0.1,t2:0.1,t3:0.1,B1:1,B2:1};
   function $(id){return document.getElementById(id)}
   function stepDecimals(step){const s=String(step);return s.includes('.')?s.split('.')[1].length:0}
   function sectionType(){return window.BeamSectionMode&&window.BeamSectionMode.getSectionType()?window.BeamSectionMode.getSectionType():(($('sectionType')||{}).value||'')}
   function visibleIds(){
     const st=sectionType();
     if(st==='丸棒') return ['diameterD'];
+    if(st===LIPPED_CHANNEL) return ids.slice(1);
     if(st==='長方形') return ['B','H'];
     return ['B','H','t1','t2'];
   }
@@ -25,6 +26,12 @@
       .section-dim-controls label{font-weight:800;color:#475569}
       .section-dim-controls input{width:70px;height:22px;border:1px solid #cbd5e1;border-radius:6px;padding:1px 4px;font-size:11px;background:#fff;color:#111827}
       .section-dim-controls input:disabled{background:#f1f5f9;color:#94a3b8}
+      .section-dim-controls .thickness-link-label{grid-column:1/-1;display:flex;align-items:center;gap:5px}
+      .section-dim-controls .thickness-link-label input{width:auto!important;height:auto!important}
+      .section-dim-controls.dim-controls-lipped{position:static;max-width:none!important;grid-template-columns:repeat(2,minmax(0,1fr) minmax(0,2fr))!important;margin-top:4px}
+      .section-dim-controls.dim-controls-lipped input[data-dim-input]{width:100%!important}
+      .section-dim-controls.dim-controls-lipped .dim-title,.section-dim-controls.dim-controls-lipped .dim-note{grid-column:1/-1}
+      .section-dim-controls.dim-controls-lipped .dim-step-buttons{display:none}
       .section-dim-controls .dim-note{grid-column:1/3;font-size:10px;color:#64748b;line-height:1.2}
     `;
     document.head.appendChild(style);
@@ -72,6 +79,7 @@
   function syncPanel(){
     const panel=ensurePanel();
     if(!panel) return;
+    panel.classList.toggle('dim-controls-lipped',sectionType()===LIPPED_CHANNEL);
     const show=new Set(visibleIds());
     const editable=isEditable();
     ids.forEach(id=>{
@@ -85,6 +93,7 @@
         const src=$(id);
         if(src && document.activeElement!==input) input.value=src.value;
         input.disabled=!editable || !src || src.disabled;
+        input.classList.toggle('input-error',!!src?.classList.contains('input-error'));
       }
     });
     const note=$('dimCtrlNote');
@@ -94,9 +103,8 @@
     if(typeof render!=='function' || render._sectionDimPatched) return;
     const original=render;
     window.render=function(){
-      const result=original.apply(this,arguments);
       syncPanel();
-      return result;
+      return original.apply(this,arguments);
     };
     window.render._sectionDimPatched=true;
   }
